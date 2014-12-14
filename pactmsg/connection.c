@@ -103,7 +103,7 @@ void pact_connection_q_send(pact_connection_t* conn, char* message)
 {
 	size_t length = strlen(message);
 	char* buf = malloc(length);
-	strncopy(buf, message, length);
+	strncpy(buf, message, length);
 	pact_linkedlist_pushback(conn->in_q, buf);
 }
 
@@ -112,12 +112,12 @@ char* pact_connection_q_recv(pact_connection_t* conn)
 	if (pact_linkedlist_length(conn->out_q) == 0)
 		return 0;
 
-	char* buf;
+	char* buf = 0;
 	if (pact_linkedlist_popfront(conn->out_q, buf))
 		return 0;
 	size_t length = strlen(buf);
 	char* message = malloc(length);
-	strncopy(message, buf, length);
+	strncpy(message, buf, length);
 	free(buf);
 
 	return message;
