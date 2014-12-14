@@ -33,16 +33,7 @@
     <ClInclude Include="connection_structs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="connection_typedefs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="data_structs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="data_typedefs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="data.h">
+    <ClInclude Include="datastructures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -56,7 +47,7 @@
     <ClCompile Include="crosssocket.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="data.c">
+    <ClCompile Include="datastructures.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

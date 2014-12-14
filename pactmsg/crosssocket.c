@@ -1,7 +1,6 @@
 #include "crosssockets.h"
 
-int pact_get_last_socket_error()
-{
+int pact_get_last_socket_error() {
 #ifndef PACT_OS_WIN
 	return errno;
 #else
@@ -9,19 +8,17 @@ int pact_get_last_socket_error()
 #endif
 }
 
-int pact_socket_create(int domain, int type, int blocking, pact_crosssocket_t* sock)
-{
+int pact_socket_create(int domain, int type, int blocking, pact_Socket* sock) {
 	*sock = socket(domain, type, 0);
-	if (!blocking)
-	{
+
+	if (!blocking) {
 #ifndef PACT_OS_WIN
 		int fail = fcntl(*sock, F_SETFL, fcntl(*sock, F_GETFL, 0) | O_NONBLOCK) != 0;
 #else
 		unsigned long mode = 0;
 		int fail = PACT_CHECK_SOCKET_ERROR(ioctlsocket(*sock, FIONBIO, &mode));
 #endif
-		if (fail)
-		{
+		if (fail) {
 			pact_socket_close(sock);
 			return 1;
 		}
@@ -29,8 +26,7 @@ int pact_socket_create(int domain, int type, int blocking, pact_crosssocket_t* s
 	return PACK_CHECK_SOCKET_ERROR(*sock) ? 1 : 0;
 }
 
-void pact_socket_close(pact_crosssocket_t* sock)
-{
+void pact_socket_close(pact_Socket* sock) {
 #ifndef PACT_OS_WIN
 	close(*sock);
 #else
