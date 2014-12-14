@@ -7,9 +7,11 @@
 *.sln.docstates
 
 # Build results
-
-[Dd]ebug/
-[Rr]elease/
+Debug/
+StaticDebug/
+DynamicDebug/
+StaticRelease/
+DynamicRelease/
 x64/
 build/
 [Bb]in/
