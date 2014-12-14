@@ -1,6 +1,8 @@
 #include "connection.h"
 #include "debug.h"
 #include "datastructures.h"
+#include <stdlib.h>
+#include <string.h>
 
 #ifdef PACT_SUPPORTEDCONN_IRC
 struct pact_IRCConnection {
@@ -117,17 +119,17 @@ void pact_connection_destroy(pact_Connection* conn) {
 }
 
 int pact_connection_start(pact_Connection* conn, void* serverdata) {
-	if (conn->proto == PACT_CONNECTION_TELNET) {
-		return _pact_telnetconnection_start(conn->telnet, (pact_telnetserver_data_t*)serverdata);
+	if (conn->proto == PACT_CONNECTIONPROTOCOL_TELNET) {
+		return _pact_telnetconnection_start(conn->telnet, (pact_TelnetConnectionServerData*)serverdata);
 	}
 #ifdef PACT_SUPPORTEDCONN_IRC
-	else if (conn->proto == PACT_CONNECTION_IRC) {
-		return _pact_ircconnection_start(conn->irc, (pact_ircserver_data_t*)serverdata);
+	else if (conn->proto == PACT_CONNECTIONPROTOCOL_IRC) {
+		return _pact_ircconnection_start(conn->irc, (pact_IRCConnectionServerData*)serverdata);
 	}
 #endif
 #ifdef PACT_SUPPORTEDCONN_XMPP
-	else if (conn->proto == PACT_CONNECTION_XMPP) {
-		return _pact_xmppconnection_start(conn->xmpp, (pact_xmppserver_data_t*)serverdata);
+	else if (conn->proto == PACT_CONNECTIONPROTOCOL_XMPP) {
+		return _pact_xmppconnection_start(conn->xmpp, (pact_XMPPConnectionServerData*)serverdata);
 	}
 #endif
 	else {

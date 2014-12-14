@@ -1,4 +1,6 @@
 #include "datastructures.h"
+#include <stdlib.h>
+#include <string.h>
 
 struct pact_LinkedListNode {
 	void* data;
