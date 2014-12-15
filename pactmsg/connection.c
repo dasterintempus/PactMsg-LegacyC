@@ -144,7 +144,7 @@ int pact_connection_think(pact_Connection* conn) {
 void pact_connection_q_send(pact_Connection* conn, char* message) {
 	size_t length = strlen(message);
 	char* buf = malloc(length+1);
-	strncpy(buf, message, length);
+	strncpy(buf, message, length+1);
 	pact_linkedlist_pushback(conn->in_q, buf);
 }
 
@@ -159,7 +159,7 @@ char* pact_connection_q_recv(pact_Connection* conn) {
 	}
 	size_t length = strlen(buf);
 	char* message = malloc(length+1);
-	strncpy(message, buf, length);
+	strncpy(message, buf, length+1);
 	free(buf);
 
 	return message;
