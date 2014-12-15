@@ -61,8 +61,13 @@ int pact_socket_connect(pact_Socket* sock, const struct sockaddr* saddr, socklen
 	return 0;
 }
 
+int pact_socket_bind(pact_Socket* sock, const struct sockaddr* saddr, socklen_t len) {
+	//This is basically a straight rename, in case I decide to wrap bind()'s functionality at all later
+	return bind(*sock, saddr, len);
+}
+
 int pact_socket_accept(pact_Socket* sock, pact_Socket* newsock, struct sockaddr* saddr, socklen_t* len) {
-	//Same as pact_socket_connect basically
+	//See pact_socket_connect, except for accept()
 	int nsocket = 0;
 	int socketreturn = 0;
 	while (1) {
