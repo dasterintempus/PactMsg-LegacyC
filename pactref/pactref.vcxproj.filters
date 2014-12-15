@@ -21,5 +21,8 @@
     <ClCompile Include="..\pactmsg\crosssocket.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\pactmsg\pstring.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -21,12 +21,12 @@ int pact_socket_create(int domain, int type, int blocking, pact_Socket* sock) {
 #ifndef PACT_OS_WIN
 		int fail = fcntl(*sock, F_SETFL, fcntl(*sock, F_GETFL, 0) | O_NONBLOCK) != 0;
 #else
-		unsigned long mode = 0;
+		unsigned long mode = 1;
 		int fail = ioctlsocket(*sock, FIONBIO, &mode);
 #endif
 		if (PACT_CHECK_SOCKET_ERROR(fail)) {
 			pact_socket_close(sock);
-			return fail;
+			return 0;
 		}
 	}
 	return 0;
