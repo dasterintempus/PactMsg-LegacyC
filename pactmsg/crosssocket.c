@@ -22,9 +22,9 @@ int pact_socket_create(int domain, int type, int blocking, pact_Socket* sock) {
 		int fail = fcntl(*sock, F_SETFL, fcntl(*sock, F_GETFL, 0) | O_NONBLOCK) != 0;
 #else
 		unsigned long mode = 0;
-		int fail = PACT_CHECK_SOCKET_ERROR(ioctlsocket(*sock, FIONBIO, &mode));
+		int fail = ioctlsocket(*sock, FIONBIO, &mode);
 #endif
-		if (fail) {
+		if (PACT_CHECK_SOCKET_ERROR(fail)) {
 			pact_socket_close(sock);
 			return fail;
 		}
