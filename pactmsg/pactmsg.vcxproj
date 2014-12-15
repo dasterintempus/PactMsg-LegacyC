@@ -149,15 +149,17 @@
     <ClInclude Include="connection.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="crosssockets.h" />
-    <ClInclude Include="datastructures.h" />
+    <ClInclude Include="linkedlist.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="connection_structs.h" />
+    <ClInclude Include="pstring.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client.c" />
     <ClCompile Include="connection.c" />
     <ClCompile Include="crosssocket.c" />
-    <ClCompile Include="datastructures.c" />
+    <ClCompile Include="linkedlist.c" />
+    <ClCompile Include="pstring.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

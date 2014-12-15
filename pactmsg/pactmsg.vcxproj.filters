@@ -33,7 +33,10 @@
     <ClInclude Include="connection_structs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="datastructures.h">
+    <ClInclude Include="linkedlist.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pstring.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -47,7 +50,10 @@
     <ClCompile Include="crosssocket.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="datastructures.c">
+    <ClCompile Include="linkedlist.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pstring.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,6 +1,6 @@
 #include "connection.h"
 #include "debug.h"
-#include "datastructures.h"
+#include "linkedlist.h"
 #include <stdlib.h>
 #include <string.h>
 

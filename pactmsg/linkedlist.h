@@ -1,5 +1,5 @@
-#ifndef PACT_DATASTRUCTURES_H
-#define PACT_DATASTRUCTURES_H
+#ifndef PACT_LINKEDLIST_H
+#define PACT_LINKEDLIST_H
 
 #include "config.h"
 
