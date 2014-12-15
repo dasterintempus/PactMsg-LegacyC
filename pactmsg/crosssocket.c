@@ -23,7 +23,7 @@ int pact_socket_create(int domain, int type, int blocking, pact_Socket* sock) {
 			return 1;
 		}
 	}
-	return PACK_CHECK_SOCKET_ERROR(*sock) ? 1 : 0;
+	return PACT_CHECK_SOCKET_ERROR(*sock) ? 1 : 0;
 }
 
 void pact_socket_close(pact_Socket* sock) {
