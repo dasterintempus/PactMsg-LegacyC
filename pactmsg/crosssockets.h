@@ -49,6 +49,7 @@ int pact_socket_create(int domain, int type, int blocking, pact_Socket* sock);
 void pact_socket_close(pact_Socket* sock);
 int pact_socket_connect(pact_Socket* sock, const struct sockaddr* saddr, socklen_t len);
 int pact_socket_bind(pact_Socket* sock, const struct sockaddr* saddr, socklen_t len);
+int pact_socket_listen(pact_Socket* sock, int backlog);
 int pact_socket_accept(pact_Socket* sock, pact_Socket* newsock, struct sockaddr* saddr, socklen_t* len);
 int pact_socket_recv(pact_Socket* sock, void* buf, size_t len);
 int pact_socket_send(pact_Socket* sock, const void* buf, size_t len);

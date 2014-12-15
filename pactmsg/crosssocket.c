@@ -66,6 +66,11 @@ int pact_socket_bind(pact_Socket* sock, const struct sockaddr* saddr, socklen_t 
 	return bind(*sock, saddr, len);
 }
 
+int pact_socket_listen(pact_Socket* sock, int backlog) {
+	//This is basically a straight rename, in case I decide to wrap listen()'s functionality at all later
+	return listen(*sock, backlog);
+}
+
 int pact_socket_accept(pact_Socket* sock, pact_Socket* newsock, struct sockaddr* saddr, socklen_t* len) {
 	//See pact_socket_connect, except for accept()
 	int nsocket = 0;
