@@ -1,5 +1,5 @@
-#include "crosssockets.h"
-#include "pstring.h"
+#include "../crosssockets.h"
+#include "../pstring.h"
 
 #include <stdlib.h>
 #include <string.h>
