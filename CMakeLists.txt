@@ -34,11 +34,22 @@ set(PACTREF_HEADERS
 	src/pstring.h
 )
 
-set(TESTER_SRCS
-	src/tester/main.c
+file(GLOB INTEGRATION_TEST_SRCS
+	src/tests/integration/*.c
 )
 
-set(TESTER_HEADERS
+set(INTEGRATION_TEST_HEADERS
+    src/tests/greatest.h
+	src/connection.h
+)
+
+file(GLOB UNIT_TEST_SRCS
+    src/tests/unit/test_*.c
+    src/tests/unit/main.c
+)
+
+set(UNIT_TEST_HEADERS
+    src/tests/greatest.h
 	src/connection.h
 )
 
@@ -68,5 +79,8 @@ else()
 	target_link_libraries(pactref pactmsg)
 endif()
 
-add_executable(tester ${TESTER_SRCS} ${TESTER_HEADERS})
-target_link_libraries(tester pactmsg)
+add_executable(unittests ${UNIT_TEST_SRCS} ${UNIT_TEST_HEADERS})
+target_link_libraries(unittests pactmsg)
+
+add_executable(integrationtests ${INTEGRATION_TEST_SRCS} ${INTEGRATION_TEST_HEADERS})
+target_link_libraries(integrationtests pactmsg)
