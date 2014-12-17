@@ -42,21 +42,23 @@ set(TESTER_HEADERS
 	src/connection.h
 )
 
-option(DEBUG "" ON)
+option(PACT_DEBUG "" ON)
 option(IRC_CONN "" ON)
 
-add_library(pactmsg SHARED ${PACTMSG_SRCS} ${PACTMSG_HEADERS})
+add_library(pactmsg STATIC ${PACTMSG_SRCS} ${PACTMSG_HEADERS})
 if (WIN32)
+    target_compile_definitions(pactmsg PRIVATE  "_CRT_SECURE_NO_WARNINGS")
+    target_compile_definitions(pactmsg PRIVATE  "_WINSOCK_DEPRECATED_NO_WARNINGS")
 	target_link_libraries(pactmsg ${IRCCLIENT} wsock32 Ws2_32)
 else()
 	target_link_libraries(pactmsg ircclient)
 endif()
 
-if(DEBUG)
-	set_target_properties(pactmsg PROPERTIES COMPILE_DEFINITIONS "PACT_DEBUG")
+if(PACT_DEBUG)
+	target_compile_definitions(pactmsg PRIVATE "PACT_DEBUG")
 endif()
 if(IRC_CONN)
-	set_target_properties(pactmsg PROPERTIES COMPILE_DEFINITIONS "PACT_SUPPORTEDCONN_IRC")
+	target_compile_definitions(pactmsg PRIVATE "PACT_SUPPORTEDCONN_IRC")
 endif()
 
 add_executable(pactref ${PACTREF_SRCS} ${PACTREF_HEADERS})
