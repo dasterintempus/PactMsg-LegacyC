@@ -19,8 +19,8 @@ int pact_string_retrieve_substr(pact_String* str, char* data, unsigned int start
 unsigned int pact_string_length(pact_String* str);
 int pact_string_compare(pact_String* a, pact_String* b);
 int pact_string_compare_cstr(pact_String* a, char* b);
-int pact_string_clone(pact_String* str, pact_String* out);
-int pact_string_clone_substr(pact_String* str, pact_String* out, unsigned int start, unsigned int length);
+int pact_string_clone(pact_String* src, pact_String* dst);
+int pact_string_clone_substr(pact_String* src, pact_String* dst, unsigned int start, unsigned int length);
 int pact_string_find(pact_String* str, pact_String* find);
 int pact_string_find_cstr(pact_String* str, char* find);
 int pact_string_partition(pact_String* str, pact_String* delim, pact_String* head, pact_String* tail);

@@ -110,35 +110,38 @@ int pact_string_compare_cstr(pact_String* a, char* b) {
 	return memcmp(a->data, b, alen);
 }
 
-int pact_string_clone(pact_String* str, pact_String* out) {
-	return pact_string_clone_substr(str, out, 0, str->length);
+int pact_string_clone(pact_String* src, pact_String* dst) {
+	return pact_string_clone_substr(src, dst, 0, src->length);
 }
 
-int pact_string_clone_substr(pact_String* str, pact_String* out, unsigned int start, unsigned int length) {
-	if (start > str->length) {
+int pact_string_clone_substr(pact_String* src, pact_String* dst, unsigned int start, unsigned int length) {
+	if (start > src->length) {
 		return 1;
 	}
-	if (length + start > str->length) {
-		length = str->length - start;
+	if (length + start > src->length) {
+		length = src->length - start;
 	}
-	if (out->data) {
-		free(out->data);
+	if (dst->data) {
+		free(dst->data);
 	}
-	out->data = malloc(length + 1);
-	if (!out->data) {
+	dst->data = malloc(length + 1);
+	if (!dst->data) {
 		return 1;
 	}
-	out->length = length;
-	memcpy(out->data, str->data + start, length);
-	out->data[length] = 0;
+	dst->length = length;
+	memcpy(dst->data, src->data + start, length);
+	dst->data[length] = 0;
 	return 0;
 }
 
 int pact_string_find(pact_String* str, pact_String* find) {
 	unsigned int i;
-	for (i = 0; i + find->length < str->length; i++)
+	if (find->length == 0) {
+		return -1;
+	}
+	for (i = 0; i + find->length <=str->length; i++)
 	{
-		if (memcmp(str->data + i, find->data, find->length)) {
+		if (memcmp(str->data + i, find->data, find->length) == 0) {
 			return i;
 		}
 	}
@@ -148,9 +151,12 @@ int pact_string_find(pact_String* str, pact_String* find) {
 int pact_string_find_cstr(pact_String* str, char* find) {
 	unsigned int i;
 	unsigned int findlen = strlen(find);
-	for (i = 0; i + findlen < str->length; i++)
+	if (findlen == 0) {
+		return -1;
+	}
+	for (i = 0; i + findlen <= str->length; i++)
 	{
-		if (memcmp(str->data + i, find, findlen)) {
+		if (memcmp(str->data + i, find, findlen) == 0) {
 			return i;
 		}
 	}
