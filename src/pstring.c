@@ -139,8 +139,20 @@ int pact_string_find(pact_String* str, pact_String* find) {
 	if (find->length == 0) {
 		return -1;
 	}
-	for (i = 0; i + find->length <=str->length; i++)
-	{
+	for (i = 0; i + find->length <=str->length; i++) {
+		if (memcmp(str->data + i, find->data, find->length) == 0) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+int pact_string_find_after(pact_String* str, pact_String* find, unsigned int offset) {
+	unsigned int i;
+	if (find->length == 0) {
+		return -1;
+	}
+	for (i = offset; i + find->length <= str->length; i++) {
 		if (memcmp(str->data + i, find->data, find->length) == 0) {
 			return i;
 		}
@@ -155,6 +167,21 @@ int pact_string_find_cstr(pact_String* str, char* find) {
 		return -1;
 	}
 	for (i = 0; i + findlen <= str->length; i++)
+	{
+		if (memcmp(str->data + i, find, findlen) == 0) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+int pact_string_find_cstr_after(pact_String* str, char* find, unsigned int offset) {
+	unsigned int i;
+	unsigned int findlen = strlen(find);
+	if (findlen == 0) {
+		return -1;
+	}
+	for (i = offset; i + findlen <= str->length; i++)
 	{
 		if (memcmp(str->data + i, find, findlen) == 0) {
 			return i;
