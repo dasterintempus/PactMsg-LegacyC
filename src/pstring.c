@@ -35,7 +35,6 @@ int pact_string_assign(pact_String* str, const char* data) {
 }
 
 int pact_string_assign_length(pact_String* str, const char* data, unsigned int length) {
-	str->length = length;
 	if (str->data) {
 		free(str->data);
 	}
