@@ -8,13 +8,15 @@ struct pact_String {
 	unsigned int length;
 };
 
-pact_String* pact_string_create() {
+pact_String* pact_string_create(const char* data) {
 	pact_String* str = malloc(sizeof(pact_String));
 	if (!str) {
 		return 0;
 	}
 	memset(str, 0, sizeof(pact_String));
-
+	if (data != NULL) {
+		pact_string_assign(str, data);
+	}
 	return str;
 }
 
@@ -281,7 +283,7 @@ int pact_string_chop_front(pact_String* str, unsigned int chop) {
 	if (str->length <= chop) {
 		return pact_string_clear(str);
 	}
-	pact_String* temp = pact_string_create();
+	pact_String* temp = pact_string_create(NULL);
 	if (!temp) {
 		return -1;
 	}
@@ -302,7 +304,7 @@ int pact_string_chop_back(pact_String* str, unsigned int chop) {
 	if (str->length <= chop) {
 		return pact_string_clear(str);
 	}
-	pact_String* temp = pact_string_create();
+	pact_String* temp = pact_string_create(NULL);
 	if (!temp) {
 		return -1;
 	}
