@@ -11,7 +11,7 @@ struct pact_LinkedListNode {
 struct pact_LinkedList {
 	pact_LinkedListNode* head;
 	pact_LinkedListNode* tail;
-	unsigned int length;
+	size_t length;
 };
 
 pact_LinkedList* pact_linkedlist_create() {
@@ -36,7 +36,7 @@ void pact_linkedlist_destroy(pact_LinkedList* llist) {
 	free(llist);
 }
 
-unsigned int pact_linkedlist_length(pact_LinkedList* llist) {
+size_t pact_linkedlist_length(pact_LinkedList* llist) {
 	return llist->length;
 }
 
