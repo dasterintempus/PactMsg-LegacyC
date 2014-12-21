@@ -75,16 +75,17 @@ void* pact_linkedlist_popback(pact_LinkedList* llist) {
 int pact_linkedlist_pushfront(pact_LinkedList* llist, void* in) {
 	pact_LinkedListNode* node = malloc(sizeof(pact_LinkedListNode));
 	if (!node) {
-		return 1;
+		return 0;
 	}
 	memset(node, 0, sizeof(pact_LinkedListNode));
 
 	node->data = in;
+	node->prev = NULL;
 	node->next = llist->head;
 	llist->head->prev = node;
 	llist->head = node;
 	llist->length++;
-	return 0;
+	return 1;
 }
 
 int pact_linkedlist_pushback(pact_LinkedList* llist, void* in) {
