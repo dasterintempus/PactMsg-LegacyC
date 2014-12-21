@@ -96,6 +96,10 @@ int pact_string_compare_cstr(const pact_String* a, const char* b) {
 	}
 }
 
+inline pact_String* pact_string_copy(const pact_String* str) {
+	return pact_string_new(pact_string_copy_cstr(str));
+}
+
 pact_String* pact_string_create(const char* data) {
 	pact_String* str = malloc(sizeof(pact_String));
 	if (!str) {
