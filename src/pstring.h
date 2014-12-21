@@ -20,7 +20,8 @@ pact_String* pact_string_substr(const pact_String*str, const size_t start, const
 int pact_string_compare(const pact_String* a, const pact_String* b);
 int pact_string_compare_cstr(const pact_String* a, const char* b);
 inline pact_String* pact_string_copy(const pact_String* str);
-int pact_string_find(const pact_String* str, const pact_String* value);
+int pact_string_find_after(const pact_String* str, const pact_String* value, const size_t offset);
+inline int pact_string_find(const pact_String* str, const pact_String* value);
 
 //allocation/destruction
 pact_String* pact_string_create(const char* data);

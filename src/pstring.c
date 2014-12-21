@@ -100,17 +100,21 @@ inline pact_String* pact_string_copy(const pact_String* str) {
 	return pact_string_new(pact_string_copy_cstr(str));
 }
 
-int pact_string_find(const pact_String* str, const pact_String* value) {
+int pact_string_find_after(const pact_String* str, const pact_String* value, const size_t offset) {
 	size_t i;
 	if (str->length == 0 || value->length == 0) {
 		return -1;
 	}
-	for (i = 0; i + value->length <= str->length; i++) {
+	for (i = offset; i + value->length <= str->length; i++) {
 		if (strcmp(str->data + i, value->data, value->length) == 0) {
 			return i;
 		}
 	}
 	return -1;
+}
+
+inline int pact_string_find(const pact_String* str, const pact_String* value) {
+	return pact_string_find_after(str, value, 0);
 }
 
 pact_String* pact_string_create(const char* data) {
