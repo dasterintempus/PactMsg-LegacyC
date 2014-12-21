@@ -26,7 +26,7 @@ pact_LinkedList* pact_linkedlist_new() {
 	return llist;
 }
 
-void pact_linkedlist_destroy(pact_LinkedList* llist) {
+void pact_linkedlist_free(pact_LinkedList* llist) {
 	pact_LinkedListNode* node = llist->head;
 	while (node) {
 		pact_LinkedListNode* next = node->next;
