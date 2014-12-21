@@ -50,7 +50,7 @@ void _pact_ircevent_on_connect(irc_session_t* session, const char* event, const 
 	pact_debug_write("Connected");
 }
 
-pact_Connection* pact_connection_create(pact_ConnectionProtocol proto) {
+pact_Connection* pact_connection_new(pact_ConnectionProtocol proto) {
 	pact_Connection* conn = malloc(sizeof(pact_Connection));
 
 	if (!conn) {
@@ -61,14 +61,14 @@ pact_Connection* pact_connection_create(pact_ConnectionProtocol proto) {
 
 	conn->proto = proto;
 	if (conn->proto == PACT_CONNECTIONPROTOCOL_REF) {
-		conn->ref = _pact_refconnection_create(conn);
+		conn->ref = _pact_refconnection_new(conn);
 		if (!conn->ref) {
 			return 0;
 		}
 	}
 #ifdef PACT_SUPPORTEDCONN_IRC
 	else if (conn->proto == PACT_CONNECTIONPROTOCOL_IRC) {
-		conn->irc = _pact_ircconnection_create(conn);
+		conn->irc = _pact_ircconnection_new(conn);
 		if (!conn->irc) {
 			return 0;
 		}
@@ -76,7 +76,7 @@ pact_Connection* pact_connection_create(pact_ConnectionProtocol proto) {
 #endif
 #ifdef PACT_SUPPORTEDCONN_XMPP
 	else if (conn->proto == PACT_CONNECTIONPROTOCOL_XMPP) {
-		conn->xmpp = _pact_xmppclient_create(conn);
+		conn->xmpp = _pact_xmppconnection_new(conn);
 		if (!conn->xmpp) {
 			return 0;
 		}
@@ -99,18 +99,18 @@ pact_Connection* pact_connection_create_child(pact_connection_proto_t proto, pac
 }
 */
 
-void pact_connection_destroy(pact_Connection* conn) {
+void pact_connection_free(pact_Connection* conn) {
 	if (conn->ref) {
-		_pact_refconnection_destroy(conn->ref);
+		_pact_refconnection_free(conn->ref);
 	}
 #ifdef PACT_SUPPORTEDCONN_IRC
 	if (conn->irc) {
-		_pact_ircconnection_destroy(conn->irc);
+		_pact_ircconnection_free(conn->irc);
 	}
 #endif
 #ifdef PACT_SUPPORTEDCONN_XMPP
 	if (conn->xmpp) {
-		pact_xmppconnection_destory(conn->xmpp);
+		pact_xmppconnection_free(conn->xmpp);
 	}
 #endif
 	free(conn->in_q);

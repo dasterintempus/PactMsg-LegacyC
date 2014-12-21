@@ -48,9 +48,9 @@ typedef struct pact_XMPPConnection pact_XMPPConnection;
 typedef struct pact_Connection pact_Connection;
 
 //pact_Connection
-PACT_EXPORT pact_Connection* pact_connection_create(pact_ConnectionProtocol proto);
+PACT_EXPORT pact_Connection* pact_connection_new(pact_ConnectionProtocol proto);
 //PACT_EXPORT pact_Connection* pact_connection_create_child(pact_connection_proto_t proto, pact_client_t* parent);
-PACT_EXPORT void pact_connection_destroy(pact_Connection* conn);
+PACT_EXPORT void pact_connection_free(pact_Connection* conn);
 PACT_EXPORT int pact_connection_start(pact_Connection* conn, void* serverdata);
 PACT_EXPORT int pact_connection_think(pact_Connection* conn);
 
@@ -58,8 +58,8 @@ PACT_EXPORT void pact_connection_q_send(pact_Connection* conn, char* message);
 PACT_EXPORT char* pact_connection_q_recv(pact_Connection* conn);
 
 //ref connection
-pact_RefConnection* _pact_refconnection_create(pact_Connection* parent);
-void _pact_refconnection_destroy(pact_RefConnection* ref);
+pact_RefConnection* _pact_refconnection_new(pact_Connection* parent);
+void _pact_refconnection_free(pact_RefConnection* ref);
 int _pact_refconnection_start(pact_RefConnection* ref, pact_RefConnectionServerData* serverdata);
 int _pact_refconnection_think(pact_RefConnection* ref);
 
@@ -67,8 +67,8 @@ int _pact_refconnection_think(pact_RefConnection* ref);
 void _pact_ircevent_on_connect(irc_session_t* session, const char* event, const char* origin, const char** params, unsigned int count);
 
 //ircconnection
-pact_IRCConnection* _pact_ircconnection_create(pact_Connection* parent);
-void _pact_ircconnection_destroy(pact_IRCConnection* irc);
+pact_IRCConnection* _pact_ircconnection_new(pact_Connection* parent);
+void _pact_ircconnection_free(pact_IRCConnection* irc);
 int _pact_ircconnection_start(pact_IRCConnection* irc, pact_IRCConnectionServerData* serverdata);
 int _pact_ircconnection_think(pact_IRCConnection* irc);
 
