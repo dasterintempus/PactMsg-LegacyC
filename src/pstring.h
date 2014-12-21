@@ -17,6 +17,7 @@ size_t pact_string_get_legnth(const pact_String* str);
 //methods
 char* pact_string_copy_cstr(const pact_String* str);
 pact_String* pact_string_substr(const pact_String*str, const size_t start, const size_t end);
+int pact_string_compare(const pact_String* a, const pact_String* b);
 
 //allocation/destruction
 pact_String* pact_string_create(const char* data);
