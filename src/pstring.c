@@ -26,6 +26,10 @@ void pact_string_free(pact_String* str) {
 	free(str);
 }
 
+const char* pact_string_get_cstr(const pact_String* str) {
+	return str->data;
+}
+
 pact_String* pact_string_create(const char* data) {
 	pact_String* str = malloc(sizeof(pact_String));
 	if (!str) {
