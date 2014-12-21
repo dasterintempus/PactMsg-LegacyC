@@ -100,6 +100,19 @@ inline pact_String* pact_string_copy(const pact_String* str) {
 	return pact_string_new(pact_string_copy_cstr(str));
 }
 
+int pact_string_find(const pact_String* str, const pact_String* value) {
+	size_t i;
+	if (str->length == 0 || value->length == 0) {
+		return -1;
+	}
+	for (i = 0; i + value->length <= str->length; i++) {
+		if (strcmp(str->data + i, value->data, value->length) == 0) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 pact_String* pact_string_create(const char* data) {
 	pact_String* str = malloc(sizeof(pact_String));
 	if (!str) {
