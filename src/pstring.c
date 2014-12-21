@@ -126,6 +126,10 @@ inline int pact_string_find_cstr(const pact_String* str, const char* value) {
 	return pact_string_find_after_cstr(str, value, 0);
 }
 
+inline pact_String* pact_string_chop_front(const pact_String* str, const size_t length) {
+	return pact_string_substr(str, length, pact_string_get_length(str));
+}
+
 
 
 pact_String* pact_string_create(const char* data) {

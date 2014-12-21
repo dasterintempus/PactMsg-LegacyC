@@ -24,6 +24,7 @@ int pact_string_find_after_cstr(const pact_String* str, const char* value, const
 inline int pact_string_find_cstr(const pact_String* str, const char* value);
 inline int pact_string_find_after(const pact_String* str, const pact_String* value, const size_t offset);
 inline int pact_string_find(const pact_String* str, const pact_String* value);
+inline pact_String* pact_string_chop_front(const pact_String* str, const size_t length);
 
 
 //allocation/destruction
@@ -52,7 +53,7 @@ int pact_string_append(pact_String* str, pact_String* tail);
 int pact_string_append_cstr(pact_String* str, char* tail);
 int pact_string_prepend(pact_String* str, pact_String* head);
 int pact_string_prepend_cstr(pact_String* str, char* head);
-int pact_string_chop_front(pact_String* str, unsigned int chop);
-int pact_string_chop_back(pact_String* str, unsigned int chop);
+//int pact_string_chop_front(pact_String* str, unsigned int chop);
+//int pact_string_chop_back(pact_String* str, unsigned int chop);
 
 #endif
