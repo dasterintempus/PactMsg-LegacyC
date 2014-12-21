@@ -2,6 +2,7 @@
 #define PACT_STRING_H
 
 #include "config.h"
+#include <stdlib.h>
 
 typedef struct pact_String pact_String;
 
@@ -11,6 +12,7 @@ void pact_string_free(pact_String* str);
 
 //getters
 const char* pact_string_get_cstr(const pact_String* str);
+size_t pact_string_get_legnth(const pact_String* str);
 
 //allocation/destruction
 pact_String* pact_string_create(const char* data);

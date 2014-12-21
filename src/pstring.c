@@ -5,7 +5,7 @@
 
 struct pact_String {
 	char* data;
-	unsigned int length;
+	size_t length;
 };
 
 pact_String* pact_string_new(const char* data) {
@@ -28,6 +28,10 @@ void pact_string_free(pact_String* str) {
 
 const char* pact_string_get_cstr(const pact_String* str) {
 	return str->data;
+}
+
+size_t pact_string_get_length(const pact_String* str) {
+	return str->length;
 }
 
 pact_String* pact_string_create(const char* data) {
