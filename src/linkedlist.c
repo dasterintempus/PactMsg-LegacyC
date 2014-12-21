@@ -40,16 +40,20 @@ size_t pact_linkedlist_length(pact_LinkedList* llist) {
 	return llist->length;
 }
 
-int pact_linkedlist_popfront(pact_LinkedList* llist, void* out) {
+void* pact_linkedlist_popfront(pact_LinkedList* llist) {
+	void* return_value;
+	pact_LinkedListNode* popped_node;
 	if (llist->length == 0) {
-		return 1;
+		return NULL;
 	}
-
-	out = llist->head->data;
-	llist->head = llist->head->next;
+	popped_node = llist->head;
+	return_value = popped_node->data;
+	
+	llist->head = popped_node->next;
+	llist->head->prev = NULL;
 	llist->length--;
-
-	return 0;
+	free(popped_node);
+	return return_value;
 }
 
 int pact_linkedlist_popback(pact_LinkedList* llist, void* out) {
