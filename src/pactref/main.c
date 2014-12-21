@@ -55,6 +55,13 @@ int extract_channel_name(pact_String* line, pact_String* channel) {
 	return extract_from_str_to_space(line, channel, "#");
 }
 
+int is_valid_name(pact_String* name) {
+	if (pact_string_find_cstr(name, ":") != -1 || pact_string_find_cstr(name, "[") != -1 || pact_string_find_cstr(name, "]") != -1) {
+		return 0;
+	}
+	return 1;
+}
+
 pact_String* get_open_channel_slot(pact_RefClient* client) {
 	unsigned short int i;
 	for (i = 0; i < MAX_CLIENT_CHANNELS; i++) {
@@ -108,14 +115,12 @@ int find_channel(pact_RefClient* client, pact_String* channel) {
 void setup_user_message(pact_RefClient* sender, pact_String* target, pact_String* line, pact_String* message) {
 	pact_String* buffer = pact_string_new();
 	if (pact_string_length(sender->id) > 0) {
-		pact_string_clone(sender->id, buffer);
-		pact_string_prepend_cstr(buffer, "@");
+		pact_string_append_cstr(buffer, "@");
+		pact_string_append(buffer, sender->id);
 		pact_string_append_cstr(buffer, ": ");
 	}
 	else {
-		pact_string_assign(buffer, "[guest]");
-		pact_string_prepend_cstr(buffer, "@");
-		pact_string_append_cstr(buffer, ": ");
+		pact_string_append_cstr(buffer, "@[guest]: ");
 	}
 	//Copy the actual message text into message
 	pact_string_clone_substr(line, message, 6 + pact_string_length(target), pact_string_length(line) - (6 + pact_string_length(target)));
@@ -128,26 +133,19 @@ void setup_user_message(pact_RefClient* sender, pact_String* target, pact_String
 
 void setup_channel_message(pact_RefClient* sender, pact_String* channel, pact_String* line, pact_String* message) {
 	pact_String* buffer = pact_string_new();
-	pact_String* buffer2 = pact_string_new();
+	pact_string_clone(channel, buffer);
+	pact_string_prepend_cstr(buffer, "#");
+	pact_string_append_cstr(buffer, ": ");
 	if (pact_string_length(sender->id) > 0) {
-		pact_string_clone(sender->id, buffer2);
-		pact_string_prepend_cstr(buffer2, "@");
-		pact_string_append_cstr(buffer2, ": ");
+		pact_string_append_cstr(buffer, "@");
+		pact_string_append(buffer, sender->id);
+		pact_string_append_cstr(buffer, ": ");
 	}
 	else {
-		pact_string_assign(buffer2, "[guest]");
-		pact_string_prepend_cstr(buffer2, "@");
-		pact_string_append_cstr(buffer2, ": ");
+		pact_string_append_cstr(buffer, "@[guest]: ");
 	}
 	//Copy the actual message text into message
 	pact_string_clone_substr(line, message, 6 + pact_string_length(channel), pact_string_length(line) - (6 + pact_string_length(channel)));
-	//Set the message prefix up in buffer
-	pact_string_clone(channel, buffer);
-	pact_string_prepend_cstr(buffer, "#");
-	//Add the sender prefix too
-	pact_string_prepend(buffer, buffer2);
-	pact_string_free(buffer2);
-	pact_string_append_cstr(buffer, ": ");
 	//Apply the message prefix to message
 	pact_string_prepend(message, buffer);
 	pact_string_free(buffer);
@@ -197,6 +195,11 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 				pact_string_free(buffer);
 				return;
 			}
+			if (!is_valid_name(buffer)) {
+				pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
+				pact_string_free(buffer);
+				return;
+			}
 			channelslot = get_open_channel_slot(client);
 			pact_string_clone(buffer, channelslot);
 
@@ -215,6 +218,12 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 			//copy the relevant portions of the line into buffer
 			res = extract_channel_name(line, buffer);
 			if (res < 0) {
+				pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
+				pact_string_free(buffer);
+				return;
+			}
+			if (!is_valid_name(buffer)) {
+				//Invalid character in channel name
 				pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
 				pact_string_free(buffer);
 				return;
@@ -246,6 +255,12 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 				pact_string_free(buffer);
 				return;
 			}
+			if (!is_valid_name(buffer)) {
+				//Invalid character in channel name
+				pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
+				pact_string_free(buffer);
+				return;
+			}
 			message = pact_string_new();
 			setup_channel_message(client, buffer, line, message);
 			set = malloc(sizeof(unsigned short int) * MAX_CLIENTS);
@@ -263,6 +278,12 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 			buffer = pact_string_new();
 			res = extract_id(line, buffer);
 			if (res < 0) {
+				pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
+				pact_string_free(buffer);
+				return;
+			}
+			if (!is_valid_name(buffer)) {
+				//Invalid character in id
 				pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
 				pact_string_free(buffer);
 				return;
@@ -296,8 +317,8 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 				pact_string_free(buffer);
 				return;
 			}
-			if (pact_string_compare_cstr(buffer, "[guest]") == 0) {
-				//Reserved name
+			if (!is_valid_name(buffer)) {
+				//Invalid character in id
 				pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
 				pact_string_free(buffer);
 				return;
