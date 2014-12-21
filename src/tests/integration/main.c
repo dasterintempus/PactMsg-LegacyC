@@ -3,7 +3,7 @@
 #include <string.h>
 
 int main(int argc, char** argv) {
-	pact_Connection* pc = pact_connection_create(PACT_CONNECTIONPROTOCOL_IRC);
+	pact_Connection* pc = pact_connection_new(PACT_CONNECTIONPROTOCOL_IRC);
 	pact_IRCConnectionServerData* serverdata = malloc(sizeof(pact_IRCConnectionServerData));
 	memset(serverdata, 0, sizeof(pact_IRCConnectionServerData));
 	serverdata->hostname = "wisp.lab.home.dasterin.net";
@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
 	while (!res) {
 		res = pact_connection_think(pc);
 	}
-	pact_connection_destroy(pc);
+	pact_connection_free(pc);
 	if (res) {
 		return res;
 	}

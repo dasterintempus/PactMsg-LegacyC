@@ -1,6 +1,7 @@
 #include "connection.h"
 #include "debug.h"
 #include "linkedlist.h"
+#include "crosssockets.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -21,6 +22,7 @@ struct pact_XMPPConnection {
 #endif
 
 struct pact_RefConnection {
+	pact_Socket* socket;
 	pact_RefConnectionServerData* serverdata;
 	pact_Connection* parent;
 };
@@ -165,7 +167,7 @@ char* pact_connection_q_recv(pact_Connection* conn) {
 	return message;
 }
 
-pact_RefConnection* _pact_refconnection_create(pact_Connection* parent) {
+pact_RefConnection* _pact_refconnection_new(pact_Connection* parent) {
 	if (!parent) {
 		return 0;
 	}
@@ -177,11 +179,13 @@ pact_RefConnection* _pact_refconnection_create(pact_Connection* parent) {
 	memset(ref, 0, sizeof(pact_RefConnection));
 
 	ref->parent = parent;
+	ref->socket = malloc(sizeof(pact_Socket));
+	*(ref->socket) = -1;
 
 	return ref;
 }
 
-void _pact_refconnection_destroy(pact_RefConnection* ref) {
+void _pact_refconnection_free(pact_RefConnection* ref) {
 	if (ref->serverdata) {
 		free(ref->serverdata);
 	}
@@ -189,6 +193,56 @@ void _pact_refconnection_destroy(pact_RefConnection* ref) {
 }
 
 int _pact_refconnection_start(pact_RefConnection* ref, pact_RefConnectionServerData* serverdata) {
+	ref->serverdata = serverdata;
+
+	int result = 0;
+	char* portstr = malloc(16);
+	sprintf(portstr, "%i", ref->serverdata->port);
+	struct sockaddr_in addr;
+	struct addrinfo hints;
+	struct addrinfo* addrresult;
+	struct addrinfo* rp;
+
+	memset(&addr, 0, sizeof(struct sockaddr_in));
+	memset(&hints, 0, sizeof(struct addrinfo));
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_PASSIVE;
+	hints.ai_protocol = 0;
+	hints.ai_canonname = 0;
+	hints.ai_addr = 0;
+	hints.ai_next = 0;
+
+	result = getaddrinfo(ref->serverdata->hostname, portstr, &hints, &addrresult);
+	if (PACT_CHECK_SOCKET_ERROR(result)) {
+		//barf
+		pact_debug_print("getaddrinfo: %ls\n", gai_strerror(pact_get_last_socket_error()));
+		return 1;
+	}
+
+	for (rp = addrresult; rp != NULL; rp = rp->ai_next) {
+		*(ref->socket) = -1;
+		result = pact_socket_create(rp->ai_family, rp->ai_socktype, 0, ref->socket);
+		if (result) {
+			//keep trying
+			continue;
+		}
+		result = pact_socket_connect(ref->socket, rp->ai_addr, rp->ai_addrlen);
+		if (result) {
+			//keep trying
+			pact_socket_close(ref->socket);
+			continue;
+		}
+	}
+
+	free(portstr);
+	freeaddrinfo(addrresult);
+	if (*(ref->socket) == -1) {
+		//NOW fail
+		pact_debug_write("no serversock\n");
+		return 1;
+	}
+
 	return 0;
 }
 
@@ -196,7 +250,7 @@ int _pact_refconnection_think(pact_RefConnection* ref) {
 	return 0;
 }
 
-pact_IRCConnection* _pact_ircconnection_create(pact_Connection* parent) {
+pact_IRCConnection* _pact_ircconnection_new(pact_Connection* parent) {
 	if (!parent) {
 		return 0;
 	}
@@ -233,7 +287,7 @@ pact_IRCConnection* _pact_ircconnection_create(pact_Connection* parent) {
 	return irc;
 }
 
-void _pact_ircconnection_destroy(pact_IRCConnection* irc) {
+void _pact_ircconnection_free(pact_IRCConnection* irc) {
 	if (irc->session) {
 		irc_destroy_session(irc->session);
 	}

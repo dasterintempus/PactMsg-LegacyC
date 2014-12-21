@@ -16,8 +16,7 @@ typedef enum {
 typedef struct {
 	char* hostname;
 	unsigned short port;
-	char* username;
-	char* pass;
+	char* id;
 } pact_RefConnectionServerData;
 
 typedef struct {
