@@ -8,6 +8,17 @@ struct pact_String {
 	unsigned int length;
 };
 
+pact_String* pact_string_new(const char* data) {
+	const pact_String i_list = { .data = data, .length = strlen(data) };
+	pact_String* str_obj = malloc(sizeof(pact_String));
+
+	if (str_obj == NULL) {
+		return NULL;
+	}
+	memcpy(str_obj, &i_list, sizeof(pact_String));
+	return str_obj;
+}
+
 pact_String* pact_string_create(const char* data) {
 	pact_String* str = malloc(sizeof(pact_String));
 	if (!str) {
