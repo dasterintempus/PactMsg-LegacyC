@@ -143,26 +143,21 @@ int pact_connection_think(pact_Connection* conn) {
 	return _pact_ircconnection_think(conn->irc);
 }
 
-void pact_connection_q_send(pact_Connection* conn, char* message) {
-	size_t length = strlen(message);
-	char* buf = malloc(length+1);
-	strncpy(buf, message, length+1);
+void pact_connection_q_send(pact_Connection* conn, pact_String* message) {
+	pact_String* buf = pact_string_new();
+	pact_string_clone(message, buf);
 	pact_linkedlist_pushback(conn->in_q, buf);
 }
 
-char* pact_connection_q_recv(pact_Connection* conn) {
+pact_String* pact_connection_q_recv(pact_Connection* conn) {
 	if (pact_linkedlist_length(conn->out_q) == 0) {
 		return 0;
 	}
 
-	char* buf = (char *) pact_linkedlist_popfront(conn->out_q);
-	if (buf) {
+	pact_String* message = (pact_String*)pact_linkedlist_popfront(conn->out_q);
+	if (!message) {
 		return 0;
 	}
-	size_t length = strlen(buf);
-	char* message = malloc(length+1);
-	strncpy(message, buf, length+1);
-	free(buf);
 
 	return message;
 }
@@ -187,6 +182,15 @@ pact_RefConnection* _pact_refconnection_new(pact_Connection* parent) {
 
 void _pact_refconnection_free(pact_RefConnection* ref) {
 	if (ref->serverdata) {
+		if (ref->serverdata->host) {
+			pact_string_free(ref->serverdata->host);
+		}
+		if (ref->serverdata->port) {
+			pact_string_free(ref->serverdata->port);
+		}
+		if (ref->serverdata->id) {
+			pact_string_free(ref->serverdata->id);
+		}
 		free(ref->serverdata);
 	}
 	free(ref);
@@ -213,7 +217,7 @@ int _pact_refconnection_start(pact_RefConnection* ref, pact_RefConnectionServerD
 	hints.ai_addr = 0;
 	hints.ai_next = 0;
 
-	result = getaddrinfo(ref->serverdata->hostname, portstr, &hints, &addrresult);
+	result = getaddrinfo(pact_string_view(ref->serverdata->host), portstr, &hints, &addrresult);
 	if (PACT_CHECK_SOCKET_ERROR(result)) {
 		//barf
 		pact_debug_print("getaddrinfo: %ls\n", gai_strerror(pact_get_last_socket_error()));
@@ -292,6 +296,24 @@ void _pact_ircconnection_free(pact_IRCConnection* irc) {
 		irc_destroy_session(irc->session);
 	}
 	if (irc->serverdata) {
+		if (irc->serverdata->host) {
+			pact_string_free(irc->serverdata->host);
+		}
+		if (irc->serverdata->port) {
+			pact_string_free(irc->serverdata->port);
+		}
+		if (irc->serverdata->pass) {
+			pact_string_free(irc->serverdata->pass);
+		}
+		if (irc->serverdata->nick) {
+			pact_string_free(irc->serverdata->nick);
+		}
+		if (irc->serverdata->username) {
+			pact_string_free(irc->serverdata->username);
+		}
+		if (irc->serverdata->realname) {
+			pact_string_free(irc->serverdata->realname);
+		}
 		free(irc->serverdata);
 	}
 	free(irc);
@@ -299,10 +321,11 @@ void _pact_ircconnection_free(pact_IRCConnection* irc) {
 
 int _pact_ircconnection_start(pact_IRCConnection* irc, pact_IRCConnectionServerData* serverdata) {
 	irc->serverdata = serverdata;
+	unsigned int portnum = strtol(pact_string_view(irc->serverdata->port), 0, 10);
 
-	if (irc_connect(irc->session, irc->serverdata->hostname, irc->serverdata->port, irc->serverdata->pass, irc->serverdata->nick, irc->serverdata->username, irc->serverdata->realname)) {
+	if (irc_connect(irc->session, pact_string_view(irc->serverdata->host), portnum, pact_string_view(irc->serverdata->pass), pact_string_view(irc->serverdata->nick), pact_string_view(irc->serverdata->username), pact_string_view(irc->serverdata->realname))) {
 		pact_debug_write("Couldn't connect to IRC");
-		pact_debug_print("(%s %u %s %s %s %s)\n", irc->serverdata->hostname, irc->serverdata->port, irc->serverdata->pass, irc->serverdata->nick, irc->serverdata->username, irc->serverdata->realname);
+		pact_debug_print("(%s %u %s %s %s %s)\n", pact_string_view(irc->serverdata->host), pact_string_view(irc->serverdata->port), pact_string_view(irc->serverdata->pass), pact_string_view(irc->serverdata->nick), pact_string_view(irc->serverdata->username), pact_string_view(irc->serverdata->realname));
 		pact_debug_write(irc_strerror(irc_errno(irc->session)));
 		return 1;
 	}
@@ -313,7 +336,7 @@ int _pact_ircconnection_start(pact_IRCConnection* irc, pact_IRCConnectionServerD
 int _pact_ircconnection_think(pact_IRCConnection* irc) {
 	if (!irc_is_connected(irc->session)) {
 		pact_debug_write("Lost connection to IRC");
-		pact_debug_print("%s\n", irc->serverdata->hostname);
+		pact_debug_print("%s\n", pact_string_view(irc->serverdata->host));
 		return 1;
 	}
 

@@ -6,8 +6,8 @@
 typedef struct pact_String pact_String;
 
 //allocation/destruction
-pact_String* pact_string_create();
-void pact_string_destroy(pact_String* str);
+pact_String* pact_string_new();
+void pact_string_free(pact_String* str);
 
 //operations
 int pact_string_clear(pact_String* str);

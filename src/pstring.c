@@ -8,7 +8,7 @@ struct pact_String {
 	unsigned int length;
 };
 
-pact_String* pact_string_create() {
+pact_String* pact_string_new() {
 	pact_String* str = malloc(sizeof(pact_String));
 	if (!str) {
 		return 0;
@@ -18,7 +18,7 @@ pact_String* pact_string_create() {
 	return str;
 }
 
-void pact_string_destroy(pact_String* str) {
+void pact_string_free(pact_String* str) {
 	if (str->data) {
 		free(str->data);
 	}
@@ -280,7 +280,7 @@ int pact_string_chop_front(pact_String* str, unsigned int chop) {
 	if (str->length <= chop) {
 		return pact_string_clear(str);
 	}
-	pact_String* temp = pact_string_create();
+	pact_String* temp = pact_string_new();
 	if (!temp) {
 		return -1;
 	}
@@ -293,7 +293,7 @@ int pact_string_chop_front(pact_String* str, unsigned int chop) {
 	temp->data = buf;
 	temp->length = str->length; //correct length on decoy str
 	str->length = str->length - chop; //correct length on real str
-	pact_string_destroy(temp); //destroy decoy str
+	pact_string_free(temp); //destroy decoy str
 	return 0;
 }
 
@@ -301,7 +301,7 @@ int pact_string_chop_back(pact_String* str, unsigned int chop) {
 	if (str->length <= chop) {
 		return pact_string_clear(str);
 	}
-	pact_String* temp = pact_string_create();
+	pact_String* temp = pact_string_new();
 	if (!temp) {
 		return -1;
 	}
@@ -314,6 +314,6 @@ int pact_string_chop_back(pact_String* str, unsigned int chop) {
 	temp->data = buf;
 	temp->length = str->length; //correct length on decoy str
 	str->length = str->length - chop; //correct length on real str
-	pact_string_destroy(temp); //destroy decoy str
+	pact_string_free(temp); //destroy decoy str
 	return 0;
 }

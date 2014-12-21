@@ -2,6 +2,7 @@
 #define PACT_CONNECTION_H
 
 #include "config.h"
+#include "pstring.h"
 
 #ifdef PACT_SUPPORTEDCONN_IRC
 #include <libircclient.h>
@@ -14,27 +15,27 @@ typedef enum {
 } pact_ConnectionProtocol;
 
 typedef struct {
-	char* hostname;
-	unsigned short port;
-	char* id;
+	pact_String* host;
+	pact_String* port;
+	pact_String* id;
 } pact_RefConnectionServerData;
 
 typedef struct {
-	char* hostname;
-	unsigned short port;
-	char* username;
-	char* domain;
-	char* resource;
-	char* pass;
+	pact_String* host;
+	pact_String* port;
+	pact_String* username;
+	pact_String* domain;
+	pact_String* resource;
+	pact_String* pass;
 } pact_XMPPConnectionServerData;
 
 typedef struct {
-	char* hostname;
-	unsigned short port;
-	char* pass;
-	char* nick;
-	char* username;
-	char* realname;
+	pact_String* host;
+	pact_String* port;
+	pact_String* pass;
+	pact_String* nick;
+	pact_String* username;
+	pact_String* realname;
 } pact_IRCConnectionServerData;
 
 typedef struct pact_RefConnection pact_RefConnection;
@@ -53,8 +54,8 @@ PACT_EXPORT void pact_connection_free(pact_Connection* conn);
 PACT_EXPORT int pact_connection_start(pact_Connection* conn, void* serverdata);
 PACT_EXPORT int pact_connection_think(pact_Connection* conn);
 
-PACT_EXPORT void pact_connection_q_send(pact_Connection* conn, char* message);
-PACT_EXPORT char* pact_connection_q_recv(pact_Connection* conn);
+PACT_EXPORT void pact_connection_q_send(pact_Connection* conn, pact_String* message);
+PACT_EXPORT pact_String* pact_connection_q_recv(pact_Connection* conn);
 
 //ref connection
 pact_RefConnection* _pact_refconnection_new(pact_Connection* parent);

@@ -6,12 +6,18 @@ int main(int argc, char** argv) {
 	pact_Connection* pc = pact_connection_new(PACT_CONNECTIONPROTOCOL_IRC);
 	pact_IRCConnectionServerData* serverdata = malloc(sizeof(pact_IRCConnectionServerData));
 	memset(serverdata, 0, sizeof(pact_IRCConnectionServerData));
-	serverdata->hostname = "wisp.lab.home.dasterin.net";
-	serverdata->port = 6667;
-	serverdata->pass = "maxcom01";
-	serverdata->nick = "bgak";
-	serverdata->username = "bgak";
-	serverdata->realname = "bgak";
+	serverdata->host = pact_string_new();
+	serverdata->port = pact_string_new();
+	serverdata->pass = pact_string_new();
+	serverdata->nick = pact_string_new();
+	serverdata->username = pact_string_new();
+	serverdata->realname = pact_string_new();
+	pact_string_assign(serverdata->host, "irc.dasterin.net");
+	pact_string_assign(serverdata->port, "6667");
+	pact_string_assign(serverdata->pass, "maxcom01");
+	pact_string_assign(serverdata->nick, "bgak");
+	pact_string_assign(serverdata->username,"bgak");
+	pact_string_assign(serverdata->realname, "bgak");
 	int res = pact_connection_start(pc, serverdata);
 	if (res) {
 		return res;
