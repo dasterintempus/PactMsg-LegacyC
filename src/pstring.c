@@ -34,6 +34,15 @@ size_t pact_string_get_length(const pact_String* str) {
 	return str->length;
 }
 
+char* pact_string_copy_cstr(const pact_String* str) {
+	char* new_string = malloc(sizeof(pact_String) * str->length);
+	if (new_string) {
+		strncpy(new_string, str->data, str->length);
+		return new_string;
+	}
+	return NULL;
+}
+
 pact_String* pact_string_create(const char* data) {
 	pact_String* str = malloc(sizeof(pact_String));
 	if (!str) {

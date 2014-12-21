@@ -14,6 +14,9 @@ void pact_string_free(pact_String* str);
 const char* pact_string_get_cstr(const pact_String* str);
 size_t pact_string_get_legnth(const pact_String* str);
 
+//methods
+char* pact_string_copy_cstr(const pact_String* str);
+
 //allocation/destruction
 pact_String* pact_string_create(const char* data);
 void pact_string_destroy(pact_String* str);
