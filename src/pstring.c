@@ -43,6 +43,31 @@ char* pact_string_copy_cstr(const pact_String* str) {
 	return NULL;
 }
 
+pact_String* pact_string_substr(const pact_String* str, const size_t start, const size_t end) {
+	const size_t length = end - start;
+	char* substr;
+	pact_String* pact_substr;
+	if (end > str->length || start > str->length) {
+		return NULL;
+	}
+	//Checking for reverse order
+	if (start > end) {
+		return NULL;
+	}
+	substr = malloc(sizeof(char) * length);
+	if (substr) {
+		strncpy(substr, str->data[start], length);
+		pact_substr = pact_string_new(substr);
+		if (pact_substr) {
+			return pact_substr;
+		}
+		else {
+			free(substr);
+		}
+	}
+	return NULL;
+}
+
 pact_String* pact_string_create(const char* data) {
 	pact_String* str = malloc(sizeof(pact_String));
 	if (!str) {
