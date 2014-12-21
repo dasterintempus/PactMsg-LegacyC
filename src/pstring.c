@@ -82,6 +82,20 @@ int pact_string_compare(const pact_String* a, pact_String* b) {
 	}
 }
 
+int pact_string_compare_cstr(const pact_String* a, const char* b) {
+	const size_t a_length = pact_string_get_length(a);
+	const size_t b_length = strlen(b);
+	if (a_length < b_length) {
+		return -1;
+	}
+	else if (a_length > b_length) {
+		return 1;
+	}
+	else {
+		return strncmp(a->data, b, a_length);
+	}
+}
+
 pact_String* pact_string_create(const char* data) {
 	pact_String* str = malloc(sizeof(pact_String));
 	if (!str) {
