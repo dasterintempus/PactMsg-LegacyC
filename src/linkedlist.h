@@ -7,7 +7,7 @@
 typedef struct pact_LinkedList pact_LinkedList;
 typedef struct pact_LinkedListNode pact_LinkedListNode;
 
-pact_LinkedList* pact_linkedlist_create();
+pact_LinkedList* pact_linkedlist_new();
 void pact_linkedlist_destroy(pact_LinkedList* llist);
 size_t pact_linkedlist_length(pact_LinkedList* llist);
 int pact_linkedlist_popfront(pact_LinkedList* llist, void* out);

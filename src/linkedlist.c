@@ -14,7 +14,7 @@ struct pact_LinkedList {
 	size_t length;
 };
 
-pact_LinkedList* pact_linkedlist_create() {
+pact_LinkedList* pact_linkedlist_new() {
 	pact_LinkedList* llist = malloc(sizeof(pact_LinkedList));
 
 	if (!llist) {
