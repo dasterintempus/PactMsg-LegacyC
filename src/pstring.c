@@ -100,22 +100,33 @@ inline pact_String* pact_string_copy(const pact_String* str) {
 	return pact_string_new(pact_string_copy_cstr(str));
 }
 
-int pact_string_find_after(const pact_String* str, const pact_String* value, const size_t offset) {
+int pact_string_find_after_cstr(const pact_String* str, const char* value, const size_t offset) {
 	size_t i;
-	if (str->length == 0 || value->length == 0) {
+	const size_t value_length = strlen(value);
+	if (str->length == 0 || value_length == 0) {
 		return -1;
 	}
-	for (i = offset; i + value->length <= str->length; i++) {
-		if (strcmp(str->data + i, value->data, value->length) == 0) {
+	for (i = offset; i + value_length <= str->length; i++) {
+		if (strcmp(str->data + i, value, value_length) == 0) {
 			return i;
 		}
 	}
 	return -1;
 }
 
-inline int pact_string_find(const pact_String* str, const pact_String* value) {
-	return pact_string_find_after(str, value, 0);
+inline int pact_string_find_after(const pact_String* str, const pact_String* value, const size_t offset) {
+	return pact_string_find_after_cstr(str, value->data, offset);
 }
+
+inline int pact_string_find(const pact_String* str, const pact_String* value) {
+	return pact_string_find_after_cstr(str, value->data, 0);
+}
+
+inline int pact_string_find_cstr(const pact_String* str, const char* value) {
+	return pact_string_find_after_cstr(str, value, 0);
+}
+
+
 
 pact_String* pact_string_create(const char* data) {
 	pact_String* str = malloc(sizeof(pact_String));
