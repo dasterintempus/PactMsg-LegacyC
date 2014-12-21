@@ -1,4 +1,5 @@
 #include "../../connection.h"
+#include "../../ircconnection.h"
 #include <stdlib.h>
 #include <string.h>
 
