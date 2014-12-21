@@ -83,8 +83,8 @@ pact_Connection* pact_connection_create(pact_ConnectionProtocol proto) {
 	}
 #endif
 
-	conn->in_q = pact_linkedlist_create();
-	conn->out_q = pact_linkedlist_create();
+	conn->in_q = pact_linkedlist_new();
+	conn->out_q = pact_linkedlist_new();
 
 	return conn;
 }
@@ -153,8 +153,8 @@ char* pact_connection_q_recv(pact_Connection* conn) {
 		return 0;
 	}
 
-	char* buf = 0;
-	if (pact_linkedlist_popfront(conn->out_q, buf)) {
+	char* buf = (char *) pact_linkedlist_popfront(conn->out_q);
+	if (buf) {
 		return 0;
 	}
 	size_t length = strlen(buf);
