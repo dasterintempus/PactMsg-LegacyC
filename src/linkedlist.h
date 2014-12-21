@@ -11,7 +11,7 @@ pact_LinkedList* pact_linkedlist_new();
 void pact_linkedlist_free(pact_LinkedList* llist);
 size_t pact_linkedlist_length(pact_LinkedList* llist);
 void* pact_linkedlist_popfront(pact_LinkedList* llist);
-int pact_linkedlist_popback(pact_LinkedList* llist, void* out);
+void* pact_linkedlist_popback(pact_LinkedList* llist);
 int pact_linkedlist_pushfront(pact_LinkedList* llist, void* in);
 int pact_linkedlist_pushback(pact_LinkedList* llist, void* in);
 

@@ -56,16 +56,20 @@ void* pact_linkedlist_popfront(pact_LinkedList* llist) {
 	return return_value;
 }
 
-int pact_linkedlist_popback(pact_LinkedList* llist, void* out) {
+void* pact_linkedlist_popback(pact_LinkedList* llist) {
+	void* return_value;
+	pact_LinkedListNode* popped_node;
 	if (llist->length == 0) {
-		return 1;
+		return NULL;
 	}
 
-	out = llist->tail->data;
-	llist->tail = llist->tail->prev;
+	popped_node = llist->tail;
+	return_value = popped_node->data;
+	llist->tail = popped_node->prev;
+	llist->tail->next = NULL;
 	llist->length--;
 
-	return 0;
+	return return_value;
 }
 
 int pact_linkedlist_pushfront(pact_LinkedList* llist, void* in) {
