@@ -103,3 +103,14 @@ int pact_linkedlist_pushback(pact_LinkedList* llist, void* in) {
 	llist->length++;
 	return 1;
 }
+
+pact_LinkedListIter* pact_linkedlist_get_iter(pact_LinkedList* llist) {
+	return (pact_LinkedListIter *) llist->head;
+}
+
+pact_LinkedListIter* pact_linkedlist_iter(pact_LinkedListIter *iter) {
+	if (iter) {
+		return iter->next;
+	}
+	return NULL;
+}
