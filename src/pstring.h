@@ -5,7 +5,9 @@
 
 typedef struct pact_String pact_String;
 
+//allocation/destruction
 pact_String* pact_string_new(const char* data);
+void pact_string_free(pact_String* str);
 
 //allocation/destruction
 pact_String* pact_string_create(const char* data);

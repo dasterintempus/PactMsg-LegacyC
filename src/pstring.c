@@ -19,6 +19,13 @@ pact_String* pact_string_new(const char* data) {
 	return str_obj;
 }
 
+void pact_string_free(pact_String* str) {
+	if (str->data) {
+		free(str->data);
+	}
+	free(str);
+}
+
 pact_String* pact_string_create(const char* data) {
 	pact_String* str = malloc(sizeof(pact_String));
 	if (!str) {
