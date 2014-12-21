@@ -25,6 +25,7 @@ inline int pact_string_find_cstr(const pact_String* str, const char* value);
 inline int pact_string_find_after(const pact_String* str, const pact_String* value, const size_t offset);
 inline int pact_string_find(const pact_String* str, const pact_String* value);
 inline pact_String* pact_string_chop_front(const pact_String* str, const size_t length);
+inline pact_String* pact_string_chop_back(const pact_String* str, const size_t length);
 
 
 //allocation/destruction

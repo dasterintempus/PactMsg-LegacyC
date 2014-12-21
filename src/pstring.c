@@ -4,8 +4,8 @@
 #include <string.h>
 
 struct pact_String {
-	char* data;
-	size_t length;
+	const char* data;
+	const size_t length;
 };
 
 pact_String* pact_string_new(const char* data) {
@@ -130,7 +130,9 @@ inline pact_String* pact_string_chop_front(const pact_String* str, const size_t 
 	return pact_string_substr(str, length, pact_string_get_length(str));
 }
 
-
+inline pact_String* pact_string_chop_back(const pact_String* str, const size_t length) {
+	return pact_string_substr(str, 0, pact_string_get_length(str) - length);
+}
 
 pact_String* pact_string_create(const char* data) {
 	pact_String* str = malloc(sizeof(pact_String));
