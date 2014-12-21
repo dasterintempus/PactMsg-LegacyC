@@ -10,7 +10,7 @@
 typedef enum {
 	PACT_CONNECTIONPROTOCOL_IRC = 1,
 	PACT_CONNECTIONPROTOCOL_XMPP = 2,
-	PACT_CONNECTIONPROTOCOL_TELNET = 3,
+	PACT_CONNECTIONPROTOCOL_REF = 3,
 } pact_ConnectionProtocol;
 
 typedef struct {
@@ -18,7 +18,7 @@ typedef struct {
 	unsigned short port;
 	char* username;
 	char* pass;
-} pact_TelnetConnectionServerData;
+} pact_RefConnectionServerData;
 
 typedef struct {
 	char* hostname;
@@ -38,7 +38,7 @@ typedef struct {
 	char* realname;
 } pact_IRCConnectionServerData;
 
-typedef struct pact_TelnetConnection pact_TelnetConnection;
+typedef struct pact_RefConnection pact_RefConnection;
 #ifdef PACT_SUPPORTEDCONN_IRC
 typedef struct pact_IRCConnection pact_IRCConnection;
 #endif
@@ -57,11 +57,11 @@ PACT_EXPORT int pact_connection_think(pact_Connection* conn);
 PACT_EXPORT void pact_connection_q_send(pact_Connection* conn, char* message);
 PACT_EXPORT char* pact_connection_q_recv(pact_Connection* conn);
 
-//telnet connection
-pact_TelnetConnection* _pact_telnetconnection_create(pact_Connection* parent);
-void _pact_telnetconnection_destroy(pact_TelnetConnection* telnet);
-int _pact_telnetconnection_start(pact_TelnetConnection* telnet, pact_TelnetConnectionServerData* serverdata);
-int _pact_telnetconnection_think(pact_TelnetConnection* telnet);
+//ref connection
+pact_RefConnection* _pact_refconnection_create(pact_Connection* parent);
+void _pact_refconnection_destroy(pact_RefConnection* ref);
+int _pact_refconnection_start(pact_RefConnection* ref, pact_RefConnectionServerData* serverdata);
+int _pact_refconnection_think(pact_RefConnection* ref);
 
 #ifdef PACT_SUPPORTEDCONN_IRC
 void _pact_ircevent_on_connect(irc_session_t* session, const char* event, const char* origin, const char** params, unsigned int count);

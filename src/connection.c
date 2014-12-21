@@ -20,8 +20,8 @@ struct pact_XMPPConnection {
 };
 #endif
 
-struct pact_TelnetConnection {
-	pact_TelnetConnectionServerData* serverdata;
+struct pact_RefConnection {
+	pact_RefConnectionServerData* serverdata;
 	pact_Connection* parent;
 };
 
@@ -30,7 +30,7 @@ struct pact_Connection {
 	pact_ConnectionProtocol proto;
 
 	//protocol-specific-structure
-	pact_TelnetConnection* telnet;
+	pact_RefConnection* ref;
 #ifdef PACT_SUPPORTEDCONN_IRC
 	pact_IRCConnection* irc;
 #endif
@@ -60,9 +60,9 @@ pact_Connection* pact_connection_create(pact_ConnectionProtocol proto) {
 	memset(conn, 0, sizeof(pact_Connection));
 
 	conn->proto = proto;
-	if (conn->proto == PACT_CONNECTIONPROTOCOL_TELNET) {
-		conn->telnet = _pact_telnetconnection_create(conn);
-		if (!conn->telnet) {
+	if (conn->proto == PACT_CONNECTIONPROTOCOL_REF) {
+		conn->ref = _pact_refconnection_create(conn);
+		if (!conn->ref) {
 			return 0;
 		}
 	}
@@ -100,8 +100,8 @@ pact_Connection* pact_connection_create_child(pact_connection_proto_t proto, pac
 */
 
 void pact_connection_destroy(pact_Connection* conn) {
-	if (conn->telnet) {
-		_pact_telnetconnection_destroy(conn->telnet);
+	if (conn->ref) {
+		_pact_refconnection_destroy(conn->ref);
 	}
 #ifdef PACT_SUPPORTEDCONN_IRC
 	if (conn->irc) {
@@ -119,8 +119,8 @@ void pact_connection_destroy(pact_Connection* conn) {
 }
 
 int pact_connection_start(pact_Connection* conn, void* serverdata) {
-	if (conn->proto == PACT_CONNECTIONPROTOCOL_TELNET) {
-		return _pact_telnetconnection_start(conn->telnet, (pact_TelnetConnectionServerData*)serverdata);
+	if (conn->proto == PACT_CONNECTIONPROTOCOL_REF) {
+		return _pact_refconnection_start(conn->ref, (pact_RefConnectionServerData*)serverdata);
 	}
 #ifdef PACT_SUPPORTEDCONN_IRC
 	else if (conn->proto == PACT_CONNECTIONPROTOCOL_IRC) {
@@ -165,34 +165,34 @@ char* pact_connection_q_recv(pact_Connection* conn) {
 	return message;
 }
 
-pact_TelnetConnection* _pact_telnetconnection_create(pact_Connection* parent) {
+pact_RefConnection* _pact_refconnection_create(pact_Connection* parent) {
 	if (!parent) {
 		return 0;
 	}
 
-	pact_TelnetConnection* telnet = malloc(sizeof(pact_TelnetConnection));
-	if (!telnet) {
+	pact_RefConnection* ref = malloc(sizeof(pact_RefConnection));
+	if (!ref) {
 		return 0;
 	}
-	memset(telnet, 0, sizeof(pact_TelnetConnection));
+	memset(ref, 0, sizeof(pact_RefConnection));
 
-	telnet->parent = parent;
+	ref->parent = parent;
 
-	return telnet;
+	return ref;
 }
 
-void _pact_telnetconnection_destroy(pact_TelnetConnection* telnet) {
-	if (telnet->serverdata) {
-		free(telnet->serverdata);
+void _pact_refconnection_destroy(pact_RefConnection* ref) {
+	if (ref->serverdata) {
+		free(ref->serverdata);
 	}
-	free(telnet);
+	free(ref);
 }
 
-int _pact_telnetconnection_start(pact_TelnetConnection* telnet, pact_TelnetConnectionServerData* serverdata) {
+int _pact_refconnection_start(pact_RefConnection* ref, pact_RefConnectionServerData* serverdata) {
 	return 0;
 }
 
-int _pact_telnetconnection_think(pact_TelnetConnection* telnet) {
+int _pact_refconnection_think(pact_RefConnection* ref) {
 	return 0;
 }
 
