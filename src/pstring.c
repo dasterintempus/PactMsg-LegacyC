@@ -143,6 +143,27 @@ pact_String* pact_string_concat(const pact_String* a, const pact_String* b) {
 	return pact_string_new(temp);
 }
 
+pact_LinkedList* pact_string_split_cstr(const pact_String* str, const char* delim) {
+	pact_LinkedList* split_list = pact_linkedlist_create();
+	pact_String* temp;
+	size_t index = 0;
+	size_t previous_index = 0;
+
+	for (index = pact_string_find_after_cstr(str, delim, index), previous_index = 0;
+		index != -1;
+		previous_index = index, index = pact_string_find_after_cstr(str, delim, index)) {
+		temp = pact_string_substr(str, previous_index, index);
+		if (temp) {
+			pact_linked_list_pushback(split_list, (void*)temp);
+		}
+	}
+	return split_list;
+}
+
+inline pact_LinkedList* pact_string_split(const pact_String* str, const pact_String* delim) {
+	return pact_string_split_cstr(str, delim->data);
+}
+
 pact_String* pact_string_create(const char* data) {
 	pact_String* str = malloc(sizeof(pact_String));
 	if (!str) {

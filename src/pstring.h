@@ -1,8 +1,10 @@
 #ifndef PACT_STRING_H
 #define PACT_STRING_H
 
-#include "config.h"
 #include <stdlib.h>
+#include "config.h"
+#include "linkedlist.h"
+
 
 typedef struct pact_String pact_String;
 
@@ -27,6 +29,8 @@ inline int pact_string_find(const pact_String* str, const pact_String* value);
 inline pact_String* pact_string_chop_front(const pact_String* str, const size_t length);
 inline pact_String* pact_string_chop_back(const pact_String* str, const size_t length);
 pact_String* pact_string_concat(const pact_String* a, const pact_String* b);
+pact_LinkedList* pact_string_split_cstr(const pact_String* str, const char* delim);
+inline pact_LinkedList* pact_string_split(const pact_String* str, const pact_String* delim);
 
 
 //allocation/destruction
