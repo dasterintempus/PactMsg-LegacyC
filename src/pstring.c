@@ -134,6 +134,15 @@ inline pact_String* pact_string_chop_back(const pact_String* str, const size_t l
 	return pact_string_substr(str, 0, pact_string_get_length(str) - length);
 }
 
+pact_String* pact_string_concat(const pact_String* a, const pact_String* b) {
+	const size_t length = a->length + b->length + 1;
+	char* temp = malloc(sizeof(char)*length);
+	memset(temp, 0, length);
+	strcncpy(temp, a->data, a->length);
+	strncat(temp, b->data, b->length);
+	return pact_string_new(temp);
+}
+
 pact_String* pact_string_create(const char* data) {
 	pact_String* str = malloc(sizeof(pact_String));
 	if (!str) {
