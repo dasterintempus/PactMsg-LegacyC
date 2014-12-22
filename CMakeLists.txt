@@ -19,6 +19,8 @@ set(PACTMSG_SRCS
 	src/crosssocket.c
 	src/linkedlist.c
 	src/pstring.c
+	src/ircconnection.c
+	src/refconnection.c
 )
 
 file(GLOB PACTMSG_HEADERS

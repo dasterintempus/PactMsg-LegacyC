@@ -55,6 +55,13 @@ int extract_channel_name(pact_String* line, pact_String* channel) {
 	return extract_from_str_to_space(line, channel, "#");
 }
 
+int is_valid_name(pact_String* name) {
+	if (pact_string_find_cstr(name, ":") != -1 || pact_string_find_cstr(name, "[") != -1 || pact_string_find_cstr(name, "]") != -1) {
+		return 0;
+	}
+	return 1;
+}
+
 pact_String* get_open_channel_slot(pact_RefClient* client) {
 	unsigned short int i;
 	for (i = 0; i < MAX_CLIENT_CHANNELS; i++) {
@@ -106,51 +113,42 @@ int find_channel(pact_RefClient* client, pact_String* channel) {
 }
 
 void setup_user_message(pact_RefClient* sender, pact_String* target, pact_String* line, pact_String* message) {
-	pact_String* buffer = pact_string_create(NULL);
+	pact_String* buffer = pact_string_new();
 	if (pact_string_length(sender->id) > 0) {
-		pact_string_clone(sender->id, buffer);
-		pact_string_prepend_cstr(buffer, "@");
+		pact_string_append_cstr(buffer, "@");
+		pact_string_append(buffer, sender->id);
 		pact_string_append_cstr(buffer, ": ");
 	}
 	else {
-		pact_string_assign(buffer, "[guest]");
-		pact_string_prepend_cstr(buffer, "@");
-		pact_string_append_cstr(buffer, ": ");
+		pact_string_append_cstr(buffer, "@[guest]: ");
 	}
 	//Copy the actual message text into message
 	pact_string_clone_substr(line, message, 6 + pact_string_length(target), pact_string_length(line) - (6 + pact_string_length(target)));
 	//Apply the sender prefix to message
 	pact_string_prepend(message, buffer);
-	pact_string_destroy(buffer);
+	pact_string_free(buffer);
 	//Add CRLF
 	pact_string_append_cstr(message, "\r\n");
 }
 
 void setup_channel_message(pact_RefClient* sender, pact_String* channel, pact_String* line, pact_String* message) {
-	pact_String* buffer = pact_string_create(NULL);
-	pact_String* buffer2 = pact_string_create(NULL);
+	pact_String* buffer = pact_string_new();
+	pact_string_clone(channel, buffer);
+	pact_string_prepend_cstr(buffer, "#");
+	pact_string_append_cstr(buffer, ": ");
 	if (pact_string_length(sender->id) > 0) {
-		pact_string_clone(sender->id, buffer2);
-		pact_string_prepend_cstr(buffer2, "@");
-		pact_string_append_cstr(buffer2, ": ");
+		pact_string_append_cstr(buffer, "@");
+		pact_string_append(buffer, sender->id);
+		pact_string_append_cstr(buffer, ": ");
 	}
 	else {
-		pact_string_assign(buffer2, "[guest]");
-		pact_string_prepend_cstr(buffer2, "@");
-		pact_string_append_cstr(buffer2, ": ");
+		pact_string_append_cstr(buffer, "@[guest]: ");
 	}
 	//Copy the actual message text into message
 	pact_string_clone_substr(line, message, 6 + pact_string_length(channel), pact_string_length(line) - (6 + pact_string_length(channel)));
-	//Set the message prefix up in buffer
-	pact_string_clone(channel, buffer);
-	pact_string_prepend_cstr(buffer, "#");
-	//Add the sender prefix too
-	pact_string_prepend(buffer, buffer2);
-	pact_string_destroy(buffer2);
-	pact_string_append_cstr(buffer, ": ");
 	//Apply the message prefix to message
 	pact_string_prepend(message, buffer);
-	pact_string_destroy(buffer);
+	pact_string_free(buffer);
 	//Add CRLF
 	pact_string_append_cstr(message, "\r\n");
 }
@@ -189,12 +187,17 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 		//SUB commmand at the start of the string
 		if (pact_string_find_cstr(line, "SUB #") == 0) {
 			//We found a SUB command, with the channel identifier prefix, at the start of the string!
-			buffer = pact_string_create(NULL);
+			buffer = pact_string_new();
 			//copy the relevant portions of the line into buffer
 			res = extract_channel_name(line, buffer);
 			if (res < 0) {
 				pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
-				pact_string_destroy(buffer);
+				pact_string_free(buffer);
+				return;
+			}
+			if (!is_valid_name(buffer)) {
+				pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
+				pact_string_free(buffer);
 				return;
 			}
 			channelslot = get_open_channel_slot(client);
@@ -211,12 +214,18 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 		//NSUB commmand at the start of the string
 		if (pact_string_find_cstr(line, "NSUB #") == 0) {
 			//We found an NSUB command, with the channel identifier prefix, at the start of the string!
-			buffer = pact_string_create(NULL);
+			buffer = pact_string_new();
 			//copy the relevant portions of the line into buffer
 			res = extract_channel_name(line, buffer);
 			if (res < 0) {
 				pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
-				pact_string_destroy(buffer);
+				pact_string_free(buffer);
+				return;
+			}
+			if (!is_valid_name(buffer)) {
+				//Invalid character in channel name
+				pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
+				pact_string_free(buffer);
 				return;
 			}
 			find = find_channel(client, buffer);
@@ -238,15 +247,21 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 		//MSG commmand at the start of the string
 		if (pact_string_find_cstr(line, "MSG #") == 0) {
 			//We found a MSG command, with the channel identifier prefix, at the start of the string!
-			buffer = pact_string_create(NULL);
+			buffer = pact_string_new();
 			//copy the relevant portions of the line into buffer
 			res = extract_channel_name(line, buffer);
 			if (res < 0) {
 				pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
-				pact_string_destroy(buffer);
+				pact_string_free(buffer);
 				return;
 			}
-			message = pact_string_create(NULL);
+			if (!is_valid_name(buffer)) {
+				//Invalid character in channel name
+				pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
+				pact_string_free(buffer);
+				return;
+			}
+			message = pact_string_new();
 			setup_channel_message(client, buffer, line, message);
 			set = malloc(sizeof(unsigned short int) * MAX_CLIENTS);
 			find_clients_with_channel(set, buffer);
@@ -256,29 +271,35 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 				}
 			}
 			pact_string_append_cstr(client->outbuf, "+\r\n"); //Send ok reply
-			pact_string_destroy(message);
+			pact_string_free(message);
 		}
 		else if (pact_string_find_cstr(line, "MSG @") == 0) {
 			//We found a MSG command, with the user identifier prefix, at the start of the string!
-			buffer = pact_string_create(NULL);
+			buffer = pact_string_new();
 			res = extract_id(line, buffer);
 			if (res < 0) {
 				pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
-				pact_string_destroy(buffer);
+				pact_string_free(buffer);
 				return;
 			}
-			message = pact_string_create(NULL);
+			if (!is_valid_name(buffer)) {
+				//Invalid character in id
+				pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
+				pact_string_free(buffer);
+				return;
+			}
+			message = pact_string_new();
 			setup_user_message(client, buffer, line, message);
 			target = get_client_by_id(buffer);
 			if (!target) {
 				pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
-				pact_string_destroy(buffer);
-				pact_string_destroy(message);
+				pact_string_free(buffer);
+				pact_string_free(message);
 				return;
 			}
 			pact_string_append_cstr(client->outbuf, "+\r\n"); //Send ok reply
 			pact_string_append(target->outbuf, message);
-			pact_string_destroy(message);
+			pact_string_free(message);
 		}
 		else {
 			//Badly formatted MSG command (only works on channels or users)
@@ -289,24 +310,24 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 		//ID commmand at the start of the string
 		if (pact_string_find_cstr(line, "ID @") == 0) {
 			//We found an ID command, with the user identifier prefix, at the start of the string!
-			buffer = pact_string_create(NULL);
+			buffer = pact_string_new();
 			res = extract_id(line, buffer);
 			if (res < 0) {
 				pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
-				pact_string_destroy(buffer);
+				pact_string_free(buffer);
 				return;
 			}
-			if (pact_string_compare_cstr(buffer, "[guest]") == 0) {
-				//Reserved name
+			if (!is_valid_name(buffer)) {
+				//Invalid character in id
 				pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
-				pact_string_destroy(buffer);
+				pact_string_free(buffer);
 				return;
 			}
 			target = get_client_by_id(buffer);
 			if (target) {
 				//ID in use
 				pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
-				pact_string_destroy(buffer);
+				pact_string_free(buffer);
 				return;
 			}
 			pact_string_clone(buffer, client->id);
@@ -322,7 +343,7 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 		pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
 	}
 	if (buffer) {
-		pact_string_destroy(buffer);
+		pact_string_free(buffer);
 	}
 }
 
@@ -335,22 +356,22 @@ void get_client_input(pact_RefClient* client, pact_String* input) {
 
 	//Check for CRLFs
 	while (1) {
-		line = pact_string_create(NULL);
-		buf = pact_string_create(NULL);
+		line = pact_string_new();
+		buf = pact_string_new();
 		find = pact_string_partition_cstr(client->inbuf, "\r\n", line, buf);
 		if (find != -1) {
 			//We found one!
 			//Nuke the old buffer
-			pact_string_destroy(client->inbuf);
+			pact_string_free(client->inbuf);
 			//Replace it with the remainder after the partition call
 			client->inbuf = buf;
 
 			handle_client_line(client, line);
-			pact_string_destroy(line); //Clean up the line after we're done with it
+			pact_string_free(line); //Clean up the line after we're done with it
 		}
 		else {
-			pact_string_destroy(line);
-			pact_string_destroy(buf);
+			pact_string_free(line);
+			pact_string_free(buf);
 			break;
 		}
 	}
@@ -362,12 +383,12 @@ void init_client(pact_RefClient* client)
 
 	client->sock = malloc(sizeof(pact_Socket));
 	*client->sock = -1;
-	client->inbuf = pact_string_create(NULL);
-	client->outbuf = pact_string_create(NULL);
-	client->id = pact_string_create(NULL);
+	client->inbuf = pact_string_new();
+	client->outbuf = pact_string_new();
+	client->id = pact_string_new();
 	for (i = 0; i < MAX_CLIENT_CHANNELS; i++)
 	{
-		client->channels[i] = pact_string_create(NULL);
+		client->channels[i] = pact_string_new();
 	}
 }
 
@@ -376,12 +397,12 @@ void clear_client(pact_RefClient* client)
 	unsigned short int i;
 
 	free(client->sock);
-	pact_string_destroy(client->inbuf);
-	pact_string_destroy(client->outbuf);
-	pact_string_destroy(client->id);
+	pact_string_free(client->inbuf);
+	pact_string_free(client->outbuf);
+	pact_string_free(client->id);
 	for (i = 0; i < MAX_CLIENT_CHANNELS; i++)
 	{
-		pact_string_destroy(client->channels[i]);
+		pact_string_free(client->channels[i]);
 	}
 }
 
@@ -527,10 +548,10 @@ int main(int argc, char** argv) {
 					}
 					else if (result > 0) {
 						//We have data
-						bufstr = pact_string_create(NULL);
+						bufstr = pact_string_new();
 						pact_string_assign_length(bufstr, buf, result);
 						get_client_input(clients + i, bufstr);
-						pact_string_destroy(bufstr);
+						pact_string_free(bufstr);
 					}
 					free(buf);
 				} //end if for reading

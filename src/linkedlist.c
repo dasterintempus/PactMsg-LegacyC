@@ -11,10 +11,10 @@ struct pact_LinkedListNode {
 struct pact_LinkedList {
 	pact_LinkedListNode* head;
 	pact_LinkedListNode* tail;
-	unsigned int length;
+	size_t length;
 };
 
-pact_LinkedList* pact_linkedlist_create() {
+pact_LinkedList* pact_linkedlist_new() {
 	pact_LinkedList* llist = malloc(sizeof(pact_LinkedList));
 
 	if (!llist) {
@@ -26,7 +26,7 @@ pact_LinkedList* pact_linkedlist_create() {
 	return llist;
 }
 
-void pact_linkedlist_destroy(pact_LinkedList* llist) {
+void pact_linkedlist_free(pact_LinkedList* llist) {
 	pact_LinkedListNode* node = llist->head;
 	while (node) {
 		pact_LinkedListNode* next = node->next;
@@ -36,32 +36,40 @@ void pact_linkedlist_destroy(pact_LinkedList* llist) {
 	free(llist);
 }
 
-unsigned int pact_linkedlist_length(pact_LinkedList* llist) {
+size_t pact_linkedlist_length(pact_LinkedList* llist) {
 	return llist->length;
 }
 
-int pact_linkedlist_popfront(pact_LinkedList* llist, void* out) {
+void* pact_linkedlist_popfront(pact_LinkedList* llist) {
+	void* return_value;
+	pact_LinkedListNode* popped_node;
 	if (llist->length == 0) {
-		return 1;
+		return NULL;
 	}
-
-	out = llist->head->data;
-	llist->head = llist->head->next;
+	popped_node = llist->head;
+	return_value = popped_node->data;
+	
+	llist->head = popped_node->next;
+	llist->head->prev = NULL;
 	llist->length--;
-
-	return 0;
+	free(popped_node);
+	return return_value;
 }
 
-int pact_linkedlist_popback(pact_LinkedList* llist, void* out) {
+void* pact_linkedlist_popback(pact_LinkedList* llist) {
+	void* return_value;
+	pact_LinkedListNode* popped_node;
 	if (llist->length == 0) {
-		return 1;
+		return NULL;
 	}
 
-	out = llist->tail->data;
-	llist->tail = llist->tail->prev;
+	popped_node = llist->tail;
+	return_value = popped_node->data;
+	llist->tail = popped_node->prev;
+	llist->tail->next = NULL;
 	llist->length--;
 
-	return 0;
+	return return_value;
 }
 
 int pact_linkedlist_pushfront(pact_LinkedList* llist, void* in) {
@@ -72,6 +80,7 @@ int pact_linkedlist_pushfront(pact_LinkedList* llist, void* in) {
 	memset(node, 0, sizeof(pact_LinkedListNode));
 
 	node->data = in;
+	node->prev = NULL;
 	node->next = llist->head;
 	llist->head->prev = node;
 	llist->head = node;
@@ -87,9 +96,21 @@ int pact_linkedlist_pushback(pact_LinkedList* llist, void* in) {
 	memset(node, 0, sizeof(pact_LinkedListNode));
 
 	node->data = in;
+	node->next = NULL;
 	node->prev = llist->tail;
 	llist->tail->next = node;
 	llist->tail = node;
 	llist->length++;
 	return 0;
+}
+
+pact_LinkedListIter* pact_linkedlist_get_iter(pact_LinkedList* llist) {
+	return (pact_LinkedListIter *) llist->head;
+}
+
+pact_LinkedListIter* pact_linkedlist_iter(pact_LinkedListIter *iter) {
+	if (iter) {
+		return iter->next;
+	}
+	return NULL;
 }
