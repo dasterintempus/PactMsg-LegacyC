@@ -19,8 +19,8 @@ size_t pact_string_get_legnth(const pact_String* str);
 //methods
 char* pact_string_copy_cstr(const pact_String* str);
 pact_String* pact_string_substr(const pact_String*str, const size_t start, const size_t end);
-int pact_string_compare(const pact_String* a, const pact_String* b);
 int pact_string_compare_cstr(const pact_String* a, const char* b);
+int pact_string_compare(const pact_String* a, const pact_String* b);
 pact_String* pact_string_copy(const pact_String* str);
 int pact_string_find_after_cstr(const pact_String* str, const char* value, const size_t offset);
 int pact_string_find_cstr(const pact_String* str, const char* value);
