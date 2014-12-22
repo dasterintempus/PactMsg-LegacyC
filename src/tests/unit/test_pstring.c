@@ -3,6 +3,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+TEST test_pact_string_create() {
+	pact_String* pstring = pact_string_create("Hello World");
+	ASSERTm("pact_string_create, null returned", pstring != NULL);
+	ASSERT_STR_EQm("pact_string_create non null argument returns different data", "Hello World", pact_string_view(pstring));
+	pact_string_destroy(pstring);
+	PASS();
+}
+
 TEST test_pact_string_assign_simple() {
 	char* str = "This is some test data.";
 	pact_String* pstring = pact_string_new();
