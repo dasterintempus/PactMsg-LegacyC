@@ -20,6 +20,11 @@ typedef struct {
 	pact_String* pass;
 } pact_XMPPConnectionServerData;
 
+typedef struct {
+	pact_String* type;
+	pact_String* data;
+} pact_ConnectionMessage;
+
 typedef struct pact_RefConnection pact_RefConnection;
 #ifdef PACT_SUPPORTEDCONN_XMPP
 typedef struct pact_XMPPConnection pact_XMPPConnection;
@@ -33,7 +38,7 @@ PACT_EXPORT void pact_connection_free(pact_Connection* conn);
 PACT_EXPORT int pact_connection_start(pact_Connection* conn, void* serverdata);
 PACT_EXPORT int pact_connection_think(pact_Connection* conn);
 
-PACT_EXPORT void pact_connection_q_send(pact_Connection* conn, pact_String* message);
-PACT_EXPORT pact_String* pact_connection_q_recv(pact_Connection* conn);
+PACT_EXPORT void pact_connection_q_send(pact_Connection* conn, pact_ConnectionMessage* message);
+PACT_EXPORT pact_ConnectionMessage* pact_connection_q_recv(pact_Connection* conn);
 
 #endif

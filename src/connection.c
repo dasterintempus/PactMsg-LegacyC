@@ -123,24 +123,39 @@ int pact_connection_start(pact_Connection* conn, void* serverdata) {
 }
 
 int pact_connection_think(pact_Connection* conn) {
-	return _pact_ircconnection_think(conn->irc);
+	if (conn->proto == PACT_CONNECTIONPROTOCOL_REF) {
+		return _pact_refconnection_think(conn->ref);
+	}
+#ifdef PACT_SUPPORTEDCONN_IRC
+	else if (conn->proto == PACT_CONNECTIONPROTOCOL_IRC) {
+		return _pact_ircconnection_think(conn->irc);
+	}
+#endif
+#ifdef PACT_SUPPORTEDCONN_XMPP
+	else if (conn->proto == PACT_CONNECTIONPROTOCOL_XMPP) {
+		return _pact_xmppconnection_think(conn->xmpp);
+	}
+#endif
+	else {
+		return -1;
+	}
 }
 
-void pact_connection_q_send(pact_Connection* conn, pact_String* message) {
-	pact_String* buf = pact_string_new();
-	pact_string_clone(message, buf);
-	pact_linkedlist_pushback(conn->in_q, buf);
+void pact_connection_q_send(pact_Connection* conn, pact_ConnectionMessage* message) {
+	pact_ConnectionMessage* tmp = malloc(sizeof(pact_ConnectionMessage));
+	tmp->type = pact_string_new();
+	tmp->data = pact_string_new();
+	pact_string_clone(message->type, tmp->type);
+	pact_string_clone(message->data, tmp->data);
+	pact_linkedlist_pushback(conn->in_q, tmp);
 }
 
-pact_String* pact_connection_q_recv(pact_Connection* conn) {
+pact_ConnectionMessage* pact_connection_q_recv(pact_Connection* conn) {
 	if (pact_linkedlist_length(conn->out_q) == 0) {
 		return 0;
 	}
 
-	pact_String* message = (pact_String*)pact_linkedlist_popfront(conn->out_q);
-	if (!message) {
-		return 0;
-	}
+	pact_ConnectionMessage* message = (pact_ConnectionMessage*)pact_linkedlist_popfront(conn->out_q);
 
 	return message;
 }
