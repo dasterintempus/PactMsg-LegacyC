@@ -83,19 +83,16 @@ pact_String* pact_string_substr(const pact_String* str, size_t start, size_t end
 }
 
 int pact_string_compare_cstr(const pact_String* a, const char* b) {
-	return pact_string_compare_cstr_length(a, b, strlen(b));
-}
-
-int pact_string_compare_cstr_length(const pact_String* a, const char* b, size_t length) {
-	const size_t p_length = pact_string_get_length(a);
-	if (p_length < length) {
+	const size_t a_length = pact_string_get_length(a);
+	const size_t b_length = strlen(b);
+	if (a_length < b_length) {
 		return -1;
 	}
-	else if (p_length > length) {
+	else if (a_length > b_length) {
 		return 1;
 	}
 	else {
-		return memcmp(a->data, b, length);
+		return memcmp(a->data, b, a_length);
 	}
 }
 
