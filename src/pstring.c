@@ -26,7 +26,8 @@ pact_String* pact_string_new_length(const char* data, size_t length) {
 		return NULL;
 	}
 	str->data = malloc(length + 1);
-	strncpy(str->data, data, length + 1); // +1 ensures the trailing null is present
+	memcpy(str->data, data, length);
+	str->data[length] = 0;
 	str->length = length;
 	return str;
 }
@@ -161,12 +162,16 @@ pact_String* pact_string_chop_back(const pact_String* str, size_t length) {
 }
 
 pact_String* pact_string_concat(const pact_String* a, const pact_String* b) {
-	const size_t length = a->length + b->length + 1;
-	char* temp = malloc(sizeof(char)*length);
-	memset(temp, 0, length);
-	strcncpy(temp, a->data, a->length);
-	strncat(temp, b->data, b->length);
-	return pact_string_new(temp);
+	pact_String* pact_string;
+	const size_t length = a->length + b->length;
+	char* temp = malloc(sizeof(char)*(length+1));
+	memset(temp, 0, length+1);
+	memcpy(temp, a->data, a->length);
+	memcpy(temp, (b->data) + a->length, b->length);
+	b->data[length] = 0;
+	pact_string = pact_string_new(temp);
+	free(temp);
+	return pact_string;
 }
 
 pact_LinkedList* pact_string_split_cstr(const pact_String* str, const char* delim) {
