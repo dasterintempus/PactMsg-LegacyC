@@ -58,7 +58,6 @@ char* pact_string_copy_cstr(const pact_String* str) {
 
 pact_String* pact_string_substr(const pact_String* str, size_t start, size_t end) {
 	size_t length;
-	char* substr;
 	pact_String* pact_substr;
 	//Checking for reverse order
 	if (start > end) {
@@ -73,16 +72,14 @@ pact_String* pact_string_substr(const pact_String* str, size_t start, size_t end
 		end = str->length;
 	}
 	length = end - start;
-	substr = malloc(sizeof(char) * length);
-	if (!substr) {
-		return NULL;
-	}
-	strncpy(substr, str->data[start], length);
-	pact_substr = pact_string_new(substr);
-	free(substr);
+	pact_substr = malloc(sizeof(pact_String));
 	if (!pact_substr) {
 		return NULL;
 	}
+	pact_substr->data = malloc(sizeof(char) * length + 1);
+	memcpy(pact_substr->data, str->data[start], length);
+	pact_substr->data[length] = 0;
+	pact_substr->length = length;
 	return pact_substr;
 }
 
@@ -177,12 +174,13 @@ pact_String* pact_string_concat(const pact_String* a, const pact_String* b) {
 pact_LinkedList* pact_string_split_cstr(const pact_String* str, const char* delim) {
 	pact_LinkedList* split_list = pact_linkedlist_create();
 	pact_String* temp;
+	size_t delimlength = strlen(delim);
 	size_t index = 0;
 	size_t previous_index = 0;
 
 	for (index = pact_string_find_after_cstr(str, delim, index), previous_index = 0;
 		index != -1;
-		previous_index = index, index = pact_string_find_after_cstr(str, delim, index)) {
+		previous_index = index + delimlength, index = pact_string_find_after_cstr(str, delim, index)) {
 		temp = pact_string_substr(str, previous_index, index);
 		if (temp) {
 			pact_linked_list_pushback(split_list, (void*)temp);
@@ -192,5 +190,18 @@ pact_LinkedList* pact_string_split_cstr(const pact_String* str, const char* deli
 }
 
 pact_LinkedList* pact_string_split(const pact_String* str, const pact_String* delim) {
-	return pact_string_split_cstr(str, delim->data);
+	pact_LinkedList* split_list = pact_linkedlist_create();
+	pact_String* temp;
+	size_t index = 0;
+	size_t previous_index = 0;
+
+	for (index = pact_string_find_after(str, delim, index), previous_index = 0;
+		index != -1;
+		previous_index = index + delim->length, index = pact_string_find_after(str, delim, index)) {
+		temp = pact_string_substr(str, previous_index, index);
+		if (temp) {
+			pact_linked_list_pushback(split_list, (void*)temp);
+		}
+	}
+	return split_list;
 }
