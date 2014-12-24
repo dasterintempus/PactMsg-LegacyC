@@ -9,12 +9,14 @@ struct pact_String {
 };
 
 pact_String* pact_string_new(const char* data) {
+	size_t length = strlen(data);
 	pact_String* str = malloc(sizeof(pact_String));
 	if (!str) {
 		return NULL;
 	}
-	str->data = malloc(strlen(data) + 1);
-	strncpy(str->data, data, strlen(data) + 1); // +1 ensures the trailing null is present
+	str->data = malloc(length + 1);
+	strncpy(str->data, data, length + 1); // +1 ensures the trailing null is present
+	str->length = length;
 	return str;
 }
 
@@ -25,6 +27,7 @@ pact_String* pact_string_new_length(const char* data, size_t length) {
 	}
 	str->data = malloc(length + 1);
 	strncpy(str->data, data, length + 1); // +1 ensures the trailing null is present
+	str->length = length;
 	return str;
 }
 
@@ -92,7 +95,7 @@ int pact_string_compare_cstr(const pact_String* a, const char* b) {
 		return 1;
 	}
 	else {
-		return memcmp(a->data, b, a_length);
+		return strncmp(a->data, b, a_length);
 	}
 }
 
@@ -121,23 +124,32 @@ int pact_string_find_after_cstr(const pact_String* str, const char* value, size_
 		return -1;
 	}
 	for (i = offset; i + value_length <= str->length; i++) {
-		if (strcmp(str->data + i, value, value_length) == 0) {
+		if (strncmp(str->data + i, value, value_length) == 0) {
 			return i;
 		}
 	}
 	return -1;
 }
 
+int pact_string_find_cstr(const pact_String* str, const char* value) {
+	return pact_string_find_after_cstr(str, value, 0);
+}
+
 int pact_string_find_after(const pact_String* str, const pact_String* value, size_t offset) {
-	return pact_string_find_after_cstr(str, value->data, offset);
+	size_t i;
+	if (str->length == 0 || value->length == 0) {
+		return -1;
+	}
+	for (i = offset; i + value->length <= str->length; i++) {
+		if (memcmp(str->data + i, value, value->length) == 0) {
+			return i;
+		}
+	}
+	return -1;
 }
 
 int pact_string_find(const pact_String* str, const pact_String* value) {
-	return pact_string_find_after_cstr(str, value->data, 0);
-}
-
-int pact_string_find_cstr(const pact_String* str, const char* value) {
-	return pact_string_find_after_cstr(str, value, 0);
+	return pact_string_find_after(str, value, 0);
 }
 
 pact_String* pact_string_chop_front(const pact_String* str, size_t length) {
