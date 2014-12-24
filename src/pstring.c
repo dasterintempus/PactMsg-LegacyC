@@ -9,11 +9,18 @@ struct pact_String {
 };
 
 pact_String* pact_string_new(const char* data) {
-	size_t length = strlen(data);
-	pact_String* str = malloc(sizeof(pact_String));
+	size_t length;
+	pact_String* str;
+	str = malloc(sizeof(pact_String));
 	if (!str) {
 		return NULL;
 	}
+	if (!data) {
+		str->data = malloc(sizeof(char));
+		str->data[0] = 0;
+		str->length = 0;
+	}
+	length = strlen(data);
 	str->data = malloc(length + 1);
 	strncpy(str->data, data, length + 1); // +1 ensures the trailing null is present
 	str->length = length;
@@ -21,7 +28,11 @@ pact_String* pact_string_new(const char* data) {
 }
 
 pact_String* pact_string_new_length(const char* data, size_t length) {
-	pact_String* str = malloc(sizeof(pact_String));
+	pact_String* str;
+	if (!data) {
+		return NULL;
+	}
+	str = malloc(sizeof(pact_String));
 	if (!str) {
 		return NULL;
 	}
