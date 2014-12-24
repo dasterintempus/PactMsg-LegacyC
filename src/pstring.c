@@ -9,14 +9,23 @@ struct pact_String {
 };
 
 pact_String* pact_string_new(const char* data) {
-	const pact_String i_list = { .data = data, .length = strlen(data) };
-	pact_String* str_obj = malloc(sizeof(pact_String));
-
-	if (str_obj == NULL) {
+	pact_String* str = malloc(sizeof(pact_String));
+	if (!str) {
 		return NULL;
 	}
-	memcpy(str_obj, &i_list, sizeof(pact_String));
-	return str_obj;
+	str->data = malloc(strlen(data) + 1);
+	strncpy(str->data, data, strlen(data) + 1); // +1 ensures the trailing null is present
+	return str;
+}
+
+pact_String* pact_string_new_length(const char* data, size_t length) {
+	pact_String* str = malloc(sizeof(pact_String));
+	if (!str) {
+		return NULL;
+	}
+	str->data = malloc(length + 1);
+	strncpy(str->data, data, length + 1); // +1 ensures the trailing null is present
+	return str;
 }
 
 void pact_string_free(pact_String* str) {
@@ -35,37 +44,42 @@ size_t pact_string_get_length(const pact_String* str) {
 }
 
 char* pact_string_copy_cstr(const pact_String* str) {
-	char* new_string = malloc(sizeof(pact_String) * str->length);
-	if (new_string) {
-		strncpy(new_string, str->data, str->length);
-		return new_string;
-	}
-	return NULL;
-}
-
-pact_String* pact_string_substr(const pact_String* str, const size_t start, const size_t end) {
-	const size_t length = end - start;
-	char* substr;
-	pact_String* pact_substr;
-	if (end > str->length || start > str->length) {
+	char* new_string = malloc(sizeof(char) * str->length);
+	if (!new_string) {
 		return NULL;
 	}
+	strncpy(new_string, str->data, str->length);
+	return new_string;
+}
+
+pact_String* pact_string_substr(const pact_String* str, size_t start, size_t end) {
+	size_t length;
+	char* substr;
+	pact_String* pact_substr;
 	//Checking for reverse order
 	if (start > end) {
 		return NULL;
 	}
-	substr = malloc(sizeof(char) * length);
-	if (substr) {
-		strncpy(substr, str->data[start], length);
-		pact_substr = pact_string_new(substr);
-		if (pact_substr) {
-			return pact_substr;
-		}
-		else {
-			free(substr);
-		}
+	//Bounds check
+	if (start > str->length) {
+		return NULL;
 	}
-	return NULL;
+	//If the end is past the string, only go to the end of the string
+	if (end > str->length) {
+		end = str->length;
+	}
+	length = end - start;
+	substr = malloc(sizeof(char) * length);
+	if (!substr) {
+		return NULL;
+	}
+	strncpy(substr, str->data[start], length);
+	pact_substr = pact_string_new(substr);
+	free(substr);
+	if (!pact_substr) {
+		return NULL;
+	}
+	return pact_substr;
 }
 
 int pact_string_compare_cstr(const pact_String* a, const char* b) {
@@ -100,7 +114,7 @@ pact_String* pact_string_copy(const pact_String* str) {
 	return pact_string_new(pact_string_copy_cstr(str));
 }
 
-int pact_string_find_after_cstr(const pact_String* str, const char* value, const size_t offset) {
+int pact_string_find_after_cstr(const pact_String* str, const char* value, size_t offset) {
 	size_t i;
 	const size_t value_length = strlen(value);
 	if (str->length == 0 || value_length == 0) {
@@ -114,7 +128,7 @@ int pact_string_find_after_cstr(const pact_String* str, const char* value, const
 	return -1;
 }
 
-int pact_string_find_after(const pact_String* str, const pact_String* value, const size_t offset) {
+int pact_string_find_after(const pact_String* str, const pact_String* value, size_t offset) {
 	return pact_string_find_after_cstr(str, value->data, offset);
 }
 
@@ -126,11 +140,11 @@ int pact_string_find_cstr(const pact_String* str, const char* value) {
 	return pact_string_find_after_cstr(str, value, 0);
 }
 
-pact_String* pact_string_chop_front(const pact_String* str, const size_t length) {
+pact_String* pact_string_chop_front(const pact_String* str, size_t length) {
 	return pact_string_substr(str, length, pact_string_get_length(str));
 }
 
-pact_String* pact_string_chop_back(const pact_String* str, const size_t length) {
+pact_String* pact_string_chop_back(const pact_String* str, size_t length) {
 	return pact_string_substr(str, 0, pact_string_get_length(str) - length);
 }
 
