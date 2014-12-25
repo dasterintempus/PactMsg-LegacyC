@@ -33,13 +33,16 @@ int extract_from_str_to_space(pact_String* src, pact_String* dst, char* between)
 	if (find == -1) {
 		return -1;
 	}
-	find2 = pact_string_find_cstr_after(src, " ", find);
+	find2 = pact_string_find_after_cstr(src, " ", find);
 	if (find2 == -1) {
 		//No space
-		error = pact_string_clone_substr(src, dst, find + 1, pact_string_length(src) - (find + 1));
+		dst = pact_string_copy(src);
+		error = pact_string_chop_front(dst, find+1);
 	}
 	else {
-		error = pact_string_clone_substr(src, dst, find + 1, find2 - (find + 1));
+		dst = pact_string_copy(src);
+		error = pact_string_chop_front(dst, find + 1);
+		error = pact_string_chop_back(dst, pact_string_get_length(src) - find2);
 	}
 	if (error) {
 		return -2;
@@ -65,7 +68,7 @@ int is_valid_name(pact_String* name) {
 pact_String* get_open_channel_slot(pact_RefClient* client) {
 	unsigned short int i;
 	for (i = 0; i < MAX_CLIENT_CHANNELS; i++) {
-		if (pact_string_length(client->channels[i]) == 0) {
+		if (pact_string_get_length(client->channels[i]) == 0) {
 			return client->channels[i];
 		}
 	}
@@ -113,8 +116,8 @@ int find_channel(pact_RefClient* client, pact_String* channel) {
 }
 
 void setup_user_message(pact_RefClient* sender, pact_String* target, pact_String* line, pact_String* message) {
-	pact_String* buffer = pact_string_new();
-	if (pact_string_length(sender->id) > 0) {
+	pact_String* buffer = pact_string_new(0);
+	if (pact_string_get_length(sender->id) > 0) {
 		pact_string_append_cstr(buffer, "@");
 		pact_string_append(buffer, sender->id);
 		pact_string_append_cstr(buffer, ": ");
@@ -123,7 +126,8 @@ void setup_user_message(pact_RefClient* sender, pact_String* target, pact_String
 		pact_string_append_cstr(buffer, "@[guest]: ");
 	}
 	//Copy the actual message text into message
-	pact_string_clone_substr(line, message, 6 + pact_string_length(target), pact_string_length(line) - (6 + pact_string_length(target)));
+	message = pact_string_copy(line);
+	pact_string_chop_front(message, 6 + pact_string_get_length(target));
 	//Apply the sender prefix to message
 	pact_string_prepend(message, buffer);
 	pact_string_free(buffer);
@@ -132,11 +136,10 @@ void setup_user_message(pact_RefClient* sender, pact_String* target, pact_String
 }
 
 void setup_channel_message(pact_RefClient* sender, pact_String* channel, pact_String* line, pact_String* message) {
-	pact_String* buffer = pact_string_new();
-	pact_string_clone(channel, buffer);
+	pact_String* buffer = pact_string_copy(channel);
 	pact_string_prepend_cstr(buffer, "#");
 	pact_string_append_cstr(buffer, ": ");
-	if (pact_string_length(sender->id) > 0) {
+	if (pact_string_get_length(sender->id) > 0) {
 		pact_string_append_cstr(buffer, "@");
 		pact_string_append(buffer, sender->id);
 		pact_string_append_cstr(buffer, ": ");
@@ -145,7 +148,8 @@ void setup_channel_message(pact_RefClient* sender, pact_String* channel, pact_St
 		pact_string_append_cstr(buffer, "@[guest]: ");
 	}
 	//Copy the actual message text into message
-	pact_string_clone_substr(line, message, 6 + pact_string_length(channel), pact_string_length(line) - (6 + pact_string_length(channel)));
+	message = pact_string_copy(line);
+	pact_string_chop_front(message, 6 + pact_string_get_length(channel));
 	//Apply the message prefix to message
 	pact_string_prepend(message, buffer);
 	pact_string_free(buffer);
@@ -187,7 +191,7 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 		//SUB commmand at the start of the string
 		if (pact_string_find_cstr(line, "SUB #") == 0) {
 			//We found a SUB command, with the channel identifier prefix, at the start of the string!
-			buffer = pact_string_new();
+			buffer = pact_string_new(0);
 			//copy the relevant portions of the line into buffer
 			res = extract_channel_name(line, buffer);
 			if (res < 0) {
@@ -201,7 +205,8 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 				return;
 			}
 			channelslot = get_open_channel_slot(client);
-			pact_string_clone(buffer, channelslot);
+			pact_string_free(channelslot);
+			channelslot = pact_string_copy(buffer);
 
 			pact_string_append_cstr(client->outbuf, "+\r\n"); //Send ok reply
 		}
@@ -214,7 +219,6 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 		//NSUB commmand at the start of the string
 		if (pact_string_find_cstr(line, "NSUB #") == 0) {
 			//We found an NSUB command, with the channel identifier prefix, at the start of the string!
-			buffer = pact_string_new();
 			//copy the relevant portions of the line into buffer
 			res = extract_channel_name(line, buffer);
 			if (res < 0) {
@@ -231,7 +235,8 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 			find = find_channel(client, buffer);
 			if (find != -1) {
 				channelslot = client->channels[find];
-				pact_string_clear(channelslot);
+				pact_string_free(channelslot);
+				channelslot = pact_string_new(0);
 				pact_string_append_cstr(client->outbuf, "+\r\n"); //Send ok reply
 			}
 			else {
@@ -247,7 +252,6 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 		//MSG commmand at the start of the string
 		if (pact_string_find_cstr(line, "MSG #") == 0) {
 			//We found a MSG command, with the channel identifier prefix, at the start of the string!
-			buffer = pact_string_new();
 			//copy the relevant portions of the line into buffer
 			res = extract_channel_name(line, buffer);
 			if (res < 0) {
@@ -261,7 +265,6 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 				pact_string_free(buffer);
 				return;
 			}
-			message = pact_string_new();
 			setup_channel_message(client, buffer, line, message);
 			set = malloc(sizeof(unsigned short int) * MAX_CLIENTS);
 			find_clients_with_channel(set, buffer);
@@ -275,7 +278,6 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 		}
 		else if (pact_string_find_cstr(line, "MSG @") == 0) {
 			//We found a MSG command, with the user identifier prefix, at the start of the string!
-			buffer = pact_string_new();
 			res = extract_id(line, buffer);
 			if (res < 0) {
 				pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
@@ -288,7 +290,6 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 				pact_string_free(buffer);
 				return;
 			}
-			message = pact_string_new();
 			setup_user_message(client, buffer, line, message);
 			target = get_client_by_id(buffer);
 			if (!target) {
@@ -310,7 +311,6 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 		//ID commmand at the start of the string
 		if (pact_string_find_cstr(line, "ID @") == 0) {
 			//We found an ID command, with the user identifier prefix, at the start of the string!
-			buffer = pact_string_new();
 			res = extract_id(line, buffer);
 			if (res < 0) {
 				pact_string_append_cstr(client->outbuf, "-\r\n"); //Send error reply
@@ -330,7 +330,8 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 				pact_string_free(buffer);
 				return;
 			}
-			pact_string_clone(buffer, client->id);
+			pact_string_free(client->id);
+			client->id = pact_string_copy(buffer);
 			pact_string_append_cstr(client->outbuf, "+\r\n"); //Send ok reply
 		}
 		else {
@@ -349,32 +350,24 @@ void handle_client_line(pact_RefClient* client, pact_String* line) {
 
 void get_client_input(pact_RefClient* client, pact_String* input) {
 	pact_String* line;
-	pact_String* buf;
-	int find;
+	pact_LinkedList* split;
+	pact_LinkedListIter* i;
+	size_t n = 0;
 
 	pact_string_append(client->inbuf, input);
+	split = pact_string_split_cstr(client->inbuf, "\r\n");
 
-	//Check for CRLFs
-	while (1) {
-		line = pact_string_new();
-		buf = pact_string_new();
-		find = pact_string_partition_cstr(client->inbuf, "\r\n", line, buf);
-		if (find != -1) {
-			//We found one!
-			//Nuke the old buffer
-			pact_string_free(client->inbuf);
-			//Replace it with the remainder after the partition call
-			client->inbuf = buf;
-
-			handle_client_line(client, line);
-			pact_string_free(line); //Clean up the line after we're done with it
-		}
-		else {
-			pact_string_free(line);
-			pact_string_free(buf);
-			break;
-		}
+	for (i = pact_linkedlist_get_iter(split);
+		n < pact_linkedlist_get_length(split) - 1;
+		i = pact_linkedlist_iter(i)) {
+		line = (pact_String*)pact_linkedlist_iter_get_data(i);
+		handle_client_line(client, line);
+		pact_string_free(line); //Clean up the line after we're done with it
+		n++; //counter to make sure we don't try to process the tail of the list
 	}
+	i = pact_linkedlist_iter(i);
+	client->inbuf = pact_linkedlist_iter_get_data(i);
+	pact_linkedlist_free(split);
 }
 
 void init_client(pact_RefClient* client)
@@ -383,12 +376,12 @@ void init_client(pact_RefClient* client)
 
 	client->sock = malloc(sizeof(pact_Socket));
 	*client->sock = -1;
-	client->inbuf = pact_string_new();
-	client->outbuf = pact_string_new();
-	client->id = pact_string_new();
+	client->inbuf = pact_string_new(0);
+	client->outbuf = pact_string_new(0);
+	client->id = pact_string_new(0);
 	for (i = 0; i < MAX_CLIENT_CHANNELS; i++)
 	{
-		client->channels[i] = pact_string_new();
+		client->channels[i] = pact_string_new(0);
 	}
 }
 
@@ -435,6 +428,7 @@ int main(int argc, char** argv) {
 	int maxfd = 0;
 	char* buf;
 	pact_String* bufstr;
+	size_t packetsize;
 
 	for (i = 0; i < MAX_CLIENTS; i++) {
 		init_client(clients + i);
@@ -548,8 +542,7 @@ int main(int argc, char** argv) {
 					}
 					else if (result > 0) {
 						//We have data
-						bufstr = pact_string_new();
-						pact_string_assign_length(bufstr, buf, result);
+						bufstr = pact_string_new_length(buf, result);
 						get_client_input(clients + i, bufstr);
 						pact_string_free(bufstr);
 					}
@@ -557,11 +550,14 @@ int main(int argc, char** argv) {
 				} //end if for reading
 				if (FD_ISSET(*(clients[i].sock), &out_set)) {
 					//Can write!
-					if (pact_string_length(clients[i].outbuf) > 0) {
+					if (pact_string_get_length(clients[i].outbuf) > 0) {
 						//Have stuff to write
-						buf = malloc(1024);
-						pact_string_retrieve(clients[i].outbuf, buf, 1024);
-						result = pact_socket_send(clients[i].sock, buf, pact_string_length(clients[i].outbuf));
+						buf = pact_string_copy_cstr_length(clients[i].outbuf, 1024);
+						packetsize = pact_string_get_length(clients[i].outbuf);
+						if (packetsize > 1024) {
+							packetsize = 1024;
+						}
+						result = pact_socket_send(clients[i].sock, buf, packetsize);
 						if (result < 0) {
 							if (result != EINTR) {
 								//Assume dead client

@@ -63,7 +63,7 @@ int _pact_refconnection_start(pact_RefConnection* ref, pact_RefConnectionServerD
 	hints.ai_addr = 0;
 	hints.ai_next = 0;
 
-	result = getaddrinfo(pact_string_view(ref->serverdata->host), pact_string_view(ref->serverdata->port), &hints, &addrresult);
+	result = getaddrinfo(pact_string_get_cstr(ref->serverdata->host), pact_string_get_cstr(ref->serverdata->port), &hints, &addrresult);
 	if (PACT_CHECK_SOCKET_ERROR(result)) {
 		//barf
 		pact_debug_print("getaddrinfo: %ls\n", gai_strerror(pact_get_last_socket_error()));

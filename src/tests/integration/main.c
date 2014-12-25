@@ -18,18 +18,12 @@ int main(int argc, char** argv) {
 		if (argc < 8) {
 			return 2;
 		}
-		ircdata->host = pact_string_new();
-		ircdata->port = pact_string_new();
-		ircdata->pass = pact_string_new();
-		ircdata->nick = pact_string_new();
-		ircdata->username = pact_string_new();
-		ircdata->realname = pact_string_new();
-		pact_string_assign(ircdata->host, argv[2]);
-		pact_string_assign(ircdata->port, argv[3]);
-		pact_string_assign(ircdata->pass, argv[4]);
-		pact_string_assign(ircdata->nick, argv[5]);
-		pact_string_assign(ircdata->username, argv[6]);
-		pact_string_assign(ircdata->realname, argv[7]);
+		ircdata->host = pact_string_new(argv[2]);
+		ircdata->port = pact_string_new(argv[3]);
+		ircdata->pass = pact_string_new(argv[4]);
+		ircdata->nick = pact_string_new(argv[5]);
+		ircdata->username = pact_string_new(argv[6]);
+		ircdata->realname = pact_string_new(argv[7]);
 	}
 	else if (strcmp(argv[1], "xmpp") == 0) {
 		proto = PACT_CONNECTIONPROTOCOL_XMPP;
@@ -37,18 +31,12 @@ int main(int argc, char** argv) {
 		if (argc < 8) {
 			return 2;
 		}
-		xmppdata->host = pact_string_new();
-		xmppdata->port = pact_string_new();
-		xmppdata->pass = pact_string_new();
-		xmppdata->username = pact_string_new();
-		xmppdata->domain = pact_string_new();
-		xmppdata->resource = pact_string_new();
-		pact_string_assign(xmppdata->host, argv[2]);
-		pact_string_assign(xmppdata->port, argv[3]);
-		pact_string_assign(xmppdata->pass, argv[4]);
-		pact_string_assign(xmppdata->username, argv[5]);
-		pact_string_assign(xmppdata->domain, argv[6]);
-		pact_string_assign(xmppdata->resource, argv[7]);
+		xmppdata->host = pact_string_new(argv[2]);
+		xmppdata->port = pact_string_new(argv[3]);
+		xmppdata->pass = pact_string_new(argv[4]);
+		xmppdata->username = pact_string_new(argv[5]);
+		xmppdata->domain = pact_string_new(argv[6]);
+		xmppdata->resource = pact_string_new(argv[7]);
 	}
 	else if (strcmp(argv[1], "ref") == 0) {
 		proto = PACT_CONNECTIONPROTOCOL_REF;
@@ -56,12 +44,9 @@ int main(int argc, char** argv) {
 		if (argc < 5) {
 			return 2;
 		}
-		refdata->host = pact_string_new();
-		refdata->port = pact_string_new();
-		refdata->id = pact_string_new();
-		pact_string_assign(refdata->host, argv[2]);
-		pact_string_assign(refdata->port, argv[3]);
-		pact_string_assign(refdata->id, argv[4]);
+		refdata->host = pact_string_new(argv[2]);
+		refdata->port = pact_string_new(argv[3]);
+		refdata->id = pact_string_new(argv[4]);
 	}
 	else {
 		return 2;

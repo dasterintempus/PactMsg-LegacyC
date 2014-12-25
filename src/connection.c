@@ -142,16 +142,16 @@ int pact_connection_think(pact_Connection* conn) {
 }
 
 void pact_connection_q_send(pact_Connection* conn, pact_ConnectionMessage* message) {
-	pact_ConnectionMessage* tmp = malloc(sizeof(pact_ConnectionMessage));
-	tmp->type = pact_string_new();
-	tmp->data = pact_string_new();
-	pact_string_clone(message->type, tmp->type);
-	pact_string_clone(message->data, tmp->data);
-	pact_linkedlist_pushback(conn->in_q, tmp);
+	//pact_ConnectionMessage* tmp = malloc(sizeof(pact_ConnectionMessage));
+	//tmp->type = pact_string_new(0);
+	//tmp->data = pact_string_new(0);
+	//pact_string_clone(message->type, tmp->type);
+	//pact_string_clone(message->data, tmp->data);
+	//pact_linkedlist_pushback(conn->in_q, tmp);
 }
 
 pact_ConnectionMessage* pact_connection_q_recv(pact_Connection* conn) {
-	if (pact_linkedlist_length(conn->out_q) == 0) {
+	if (pact_linkedlist_get_length(conn->out_q) == 0) {
 		return 0;
 	}
 

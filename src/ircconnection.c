@@ -83,11 +83,11 @@ void _pact_ircconnection_free(pact_IRCConnection* irc) {
 
 int _pact_ircconnection_start(pact_IRCConnection* irc, pact_IRCConnectionServerData* serverdata) {
 	irc->serverdata = serverdata;
-	unsigned int portnum = strtol(pact_string_view(irc->serverdata->port), 0, 10);
+	unsigned int portnum = strtol(pact_string_get_cstr(irc->serverdata->port), 0, 10);
 
-	if (irc_connect(irc->session, pact_string_view(irc->serverdata->host), portnum, pact_string_view(irc->serverdata->pass), pact_string_view(irc->serverdata->nick), pact_string_view(irc->serverdata->username), pact_string_view(irc->serverdata->realname))) {
+	if (irc_connect(irc->session, pact_string_get_cstr(irc->serverdata->host), portnum, pact_string_get_cstr(irc->serverdata->pass), pact_string_get_cstr(irc->serverdata->nick), pact_string_get_cstr(irc->serverdata->username), pact_string_get_cstr(irc->serverdata->realname))) {
 		pact_debug_write("Couldn't connect to IRC");
-		pact_debug_print("(%s %u %s %s %s %s)\n", pact_string_view(irc->serverdata->host), pact_string_view(irc->serverdata->port), pact_string_view(irc->serverdata->pass), pact_string_view(irc->serverdata->nick), pact_string_view(irc->serverdata->username), pact_string_view(irc->serverdata->realname));
+		pact_debug_print("(%s %u %s %s %s %s)\n", pact_string_get_cstr(irc->serverdata->host), pact_string_get_cstr(irc->serverdata->port), pact_string_get_cstr(irc->serverdata->pass), pact_string_get_cstr(irc->serverdata->nick), pact_string_get_cstr(irc->serverdata->username), pact_string_get_cstr(irc->serverdata->realname));
 		pact_debug_write(irc_strerror(irc_errno(irc->session)));
 		return 1;
 	}
@@ -98,7 +98,7 @@ int _pact_ircconnection_start(pact_IRCConnection* irc, pact_IRCConnectionServerD
 int _pact_ircconnection_think(pact_IRCConnection* irc) {
 	if (!irc_is_connected(irc->session)) {
 		pact_debug_write("Lost connection to IRC");
-		pact_debug_print("%s\n", pact_string_view(irc->serverdata->host));
+		pact_debug_print("%s\n", pact_string_get_cstr(irc->serverdata->host));
 		return 1;
 	}
 

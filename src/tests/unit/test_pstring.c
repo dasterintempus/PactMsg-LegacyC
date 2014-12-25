@@ -3,92 +3,43 @@
 #include <stdlib.h>
 #include <string.h>
 
-TEST test_pact_string_create() {
-	pact_String* pstring = pact_string_create("Hello World");
-	ASSERTm("pact_string_create, null returned", pstring != NULL);
-	ASSERT_STR_EQm("pact_string_create non null argument returns different data", "Hello World", pact_string_view(pstring));
-	pact_string_destroy(pstring);
-	PASS();
-}
-
-TEST test_pact_string_assign_simple() {
+TEST test_pact_string_new_default() {
 	char* str = "This is some test data.";
-	pact_String* pstring = pact_string_new();
-	ASSERTm("pact_string_assign returned non-zero\n", pact_string_assign(pstring, str) == 0);
-	ASSERT_STR_EQm("pact_string_view returned different data\n", str, pact_string_view(pstring));
+	pact_String* pstring = pact_string_new(str);
+	ASSERTm("pact_string_new, null returned", pstring != NULL);
+	ASSERT_STR_EQm("pact_string_new non null argument returns different data", str, pact_string_get_cstr(pstring));
 	pact_string_free(pstring);
 	PASS();
 }
 
-TEST test_pact_string_assign_nulls() {
+TEST test_pact_string_new_empty() {
+	pact_String* pstring = pact_string_new(0);
+	ASSERTm("pact_string_new, null returned", pstring != NULL);
+	ASSERT_STR_EQm("pact_string_new null argument returns non empty string", "", pact_string_get_cstr(pstring));
+	pact_string_free(pstring);
+	PASS();
+}
+
+TEST test_pact_string_new_nulls() {
 	char* str = "This \0is \0some \0test \0data \0with \0nulls.";
-	char* check = "This ";
-	pact_String* pstring = pact_string_new();
-	ASSERTm("pact_string_assign returned non-zero\n", pact_string_assign(pstring, str) == 0);
-	ASSERT_EQm("pact_string_length returned incorrect value\n", 5, pact_string_length(pstring));
-	ASSERT_STR_EQm("pact_string_view returned different data\n", check, pact_string_view(pstring));
-	pact_string_free(pstring);
-	PASS();
-}
-
-TEST test_pact_string_assign_length_simple() {
-	char* str = "This is some test data.";
-	pact_String* pstring = pact_string_new();
-	ASSERTm("pact_string_assign_length returned non-zero\n", pact_string_assign_length(pstring, str, 23) == 0);
-	ASSERT_STR_EQm("pact_string_view returned different data\n", str, pact_string_view(pstring));
-	pact_string_free(pstring);
-	PASS();
-}
-
-TEST test_pact_string_assign_length_section() {
-	char* str = "This is some test data.";
-	char* check = "This is so";
-	pact_String* pstring = pact_string_new();
-	ASSERTm("pact_string_assign_length returned non-zero\n", pact_string_assign_length(pstring, str, 10) == 0);
-	ASSERT_STR_EQm("pact_string_view returned different data\n", check, pact_string_view(pstring));
-	pact_string_free(pstring);
-	PASS();
-}
-
-TEST test_pact_string_assign_length_nulls() {
-	char* str = "This \0is \0some \0test \0data \0with \0nulls.";
-	pact_String* pstring = pact_string_new();
-	ASSERTm("pact_string_assign_length returned non-zero\n", pact_string_assign_length(pstring, str, 29) == 0);
-	ASSERT_EQm("pact_string_length returned incorrect value\n", 29, pact_string_length(pstring));
-	ASSERTm("pact_string_view returned different data\n", memcmp(pact_string_view(pstring), str, 29) == 0);
+	pact_String* pstring = pact_string_new_length(str, 40);
+	ASSERTm("pact_string_new, null returned", pstring != NULL);
+	ASSERT_EQm("pact_string_new argument string with nulls returns wrong size", 40, pact_string_get_length(pstring));
+	ASSERTm("pact_string_new argument string with nulls returns wrong data", memcmp(str, pact_string_get_cstr(pstring), 40));
 	pact_string_free(pstring);
 	PASS();
 }
 
 TEST test_pact_string_length() {
 	char* str = "This is some test data.";
-	pact_String* pstring = pact_string_new();
-	ASSERTm("pact_string_assign returned non-zero\n", pact_string_assign(pstring, str) == 0);
-	ASSERT_EQm("pact_string_length returned incorrect value\n", 23, pact_string_length(pstring));
+	pact_String* pstring = pact_string_new(str);
+	ASSERTm("pact_string_new, null returned", pstring != NULL);
+	ASSERT_EQm("pact_string_get_length returned incorrect value\n", 23, pact_string_get_length(pstring));
 	pact_string_free(pstring);
 	PASS();
 }
-
-TEST test_pact_string_length_nulls() {
-	char* str = "This \0is \0some \0test \0data \0with \0nulls.";
-	pact_String* pstring = pact_string_new();
-	ASSERTm("pact_string_assign returned non-zero\n", pact_string_assign_length(pstring, str, 40) == 0);
-	ASSERT_EQm("pact_string_length returned incorrect value\n", 40, pact_string_length(pstring));
-	pact_string_free(pstring);
-	PASS();
-}
-
-TEST test_pact_string_clear_length_zero() {
-	char* str = "This is some test data.";
-	pact_String* pstring = pact_string_new();
-	ASSERTm("pact_string_assign returned non-zero\n", pact_string_assign(pstring, str) == 0);
-	ASSERTm("pact_string_clear returned non-zero\n", pact_string_clear(pstring) == 0);
-	ASSERTm("pact_string_length (following pact_string_clear) was not 0\n", pact_string_length(pstring) == 0);
-	pact_string_free(pstring);
-	PASS();
-}
-
-TEST test_pact_string_retrieve_short() {
+/*
+TEST test_pact_string_copy_cstr_short() {
 	char* str = "This is some test data.";
 	char* str2 = malloc(256);
 	pact_String* pstring = pact_string_new();
@@ -99,7 +50,8 @@ TEST test_pact_string_retrieve_short() {
 	free(str2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_retrieve_long() {
 	char* str = "0_1_2_3_4_5_6_7_8_9_10_11_12_13_14_15_16_17_18_19_20_21_22_23_24_25_26_27_28_29_30_31_32_33_34_35_36_37_38_39_40_41_42_43_44_45_46_47_48_49_50_51_52_53_54_55_56_57_58_59_60_61_62_63_64_65_66_67_68_69_70_71_72_73_74_75_76_77_78_79_80_81_82_83_84_85_86_87_88_89_90_91_92_93_94_95_96_97_98_99";
 	char* check = "0_1_2_3_4_5_6_7_8_9_10_11_12_13_14_15_16_17_18_19_20_21_22_23_24_25_26_27_28_29_30_31_32_33_34_35_36_37_38_39_40_41_42_43_44_45_46_47_48_49_50_51_52_53_54_55_56_57_58_59_60_61_62_63_64_65_66_67_68_69_70_71_72_73_74_75_76_77_78_79_80_81_82_83_84_85_86_87_8";
@@ -112,7 +64,8 @@ TEST test_pact_string_retrieve_long() {
 	free(str2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_retrieve_substr_start() {
 	char* str = "This is some test data.";
 	char* check = "This is so";
@@ -125,7 +78,8 @@ TEST test_pact_string_retrieve_substr_start() {
 	free(str2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_retrieve_substr_start_rest() {
 	char* str = "This is some test data.";
 	char* str2 = malloc(256);
@@ -137,7 +91,8 @@ TEST test_pact_string_retrieve_substr_start_rest() {
 	free(str2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_retrieve_substr_mid() {
 	char* str = "This is some test data.";
 	char* check = "is some te";
@@ -150,7 +105,8 @@ TEST test_pact_string_retrieve_substr_mid() {
 	free(str2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_retrieve_substr_mid_rest() {
 	char* str = "This is some test data.";
 	char* check = "is some test data.";
@@ -163,7 +119,8 @@ TEST test_pact_string_retrieve_substr_mid_rest() {
 	free(str2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_retrieve_substr_end() {
 	char* str = "This is some test data.";
 	char* check = "test data.";
@@ -176,7 +133,8 @@ TEST test_pact_string_retrieve_substr_end() {
 	free(str2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_retrieve_substr_end_rest() {
 	char* str = "This is some test data.";
 	char* check = "test data.";
@@ -189,7 +147,8 @@ TEST test_pact_string_retrieve_substr_end_rest() {
 	free(str2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_compare_to_higher() {
 	char* str = "B";
 	char* str2 = "C";
@@ -202,7 +161,8 @@ TEST test_pact_string_compare_to_higher() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_compare_to_lower() {
 	char* str = "B";
 	char* str2 = "A";
@@ -215,7 +175,8 @@ TEST test_pact_string_compare_to_lower() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_compare_to_equal() {
 	char* str = "B";
 	char* str2 = "B";
@@ -228,7 +189,8 @@ TEST test_pact_string_compare_to_equal() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_compare_to_longer() {
 	char* str = "B";
 	char* str2 = "BB";
@@ -241,7 +203,8 @@ TEST test_pact_string_compare_to_longer() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_compare_to_shorter() {
 	char* str = "BB";
 	char* str2 = "B";
@@ -254,7 +217,8 @@ TEST test_pact_string_compare_to_shorter() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_compare_both_empty() {
 	char* str = "";
 	char* str2 = "";
@@ -267,7 +231,8 @@ TEST test_pact_string_compare_both_empty() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_compare_one_empty() {
 	char* str = "B";
 	char* str2 = "";
@@ -280,7 +245,8 @@ TEST test_pact_string_compare_one_empty() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_compare_equal_nulls() {
 	char* str = "B\0";
 	char* str2 = "B\0";
@@ -293,7 +259,8 @@ TEST test_pact_string_compare_equal_nulls() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_compare_different_nulls() {
 	char* str = "B\0C";
 	char* str2 = "B\0B";
@@ -306,7 +273,8 @@ TEST test_pact_string_compare_different_nulls() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_compare_cstr_to_higher() {
 	char* str = "B";
 	char* str2 = "C";
@@ -316,7 +284,7 @@ TEST test_pact_string_compare_cstr_to_higher() {
 	pact_string_free(pstring);
 	PASS();
 }
-
+/*
 TEST test_pact_string_compare_cstr_to_lower() {
 	char* str = "B";
 	char* str2 = "A";
@@ -326,7 +294,8 @@ TEST test_pact_string_compare_cstr_to_lower() {
 	pact_string_free(pstring);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_compare_cstr_to_equal() {
 	char* str = "B";
 	char* str2 = "B";
@@ -336,7 +305,8 @@ TEST test_pact_string_compare_cstr_to_equal() {
 	pact_string_free(pstring);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_compare_cstr_both_empty() {
 	char* str = "";
 	char* str2 = "";
@@ -346,7 +316,8 @@ TEST test_pact_string_compare_cstr_both_empty() {
 	pact_string_free(pstring);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_compare_cstr_one_empty() {
 	char* str = "B";
 	char* str2 = "";
@@ -356,7 +327,8 @@ TEST test_pact_string_compare_cstr_one_empty() {
 	pact_string_free(pstring);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_clone_simple() {
 	char* str = "This is some test data.";
 	pact_String* pstring = pact_string_new();
@@ -372,7 +344,8 @@ TEST test_pact_string_clone_simple() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_clone_nulls() {
 	char* str = "This \0is \0some \0test \0data \0with \0nulls.";
 	pact_String* pstring = pact_string_new();
@@ -388,7 +361,8 @@ TEST test_pact_string_clone_nulls() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_clone_substr_start() {
 	char* str = "This is some test data.";
 	char* check = "This is so";
@@ -403,7 +377,8 @@ TEST test_pact_string_clone_substr_start() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_clone_substr_start_rest() {
 	char* str = "This is some test data.";
 	pact_String* pstring = pact_string_new();
@@ -417,7 +392,8 @@ TEST test_pact_string_clone_substr_start_rest() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_clone_substr_mid() {
 	char* str = "This is some test data.";
 	char* check = "is some te";
@@ -432,7 +408,8 @@ TEST test_pact_string_clone_substr_mid() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_clone_substr_mid_rest() {
 	char* str = "This is some test data.";
 	char* check = "is some test data.";
@@ -447,7 +424,8 @@ TEST test_pact_string_clone_substr_mid_rest() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_clone_substr_end() {
 	char* str = "This is some test data.";
 	char* check = "test data.";
@@ -462,7 +440,8 @@ TEST test_pact_string_clone_substr_end() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_clone_substr_end_rest() {
 	char* str = "This is some test data.";
 	char* check = "test data.";
@@ -477,7 +456,8 @@ TEST test_pact_string_clone_substr_end_rest() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_find_start() {
 	char* str = "This is some test data.";
 	char* search = "This";
@@ -490,7 +470,8 @@ TEST test_pact_string_find_start() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_find_mid() {
 	char* str = "This is some test data.";
 	char* search = "some";
@@ -503,7 +484,8 @@ TEST test_pact_string_find_mid() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_find_end() {
 	char* str = "This is some test data.";
 	char* search = "ta.";
@@ -516,7 +498,8 @@ TEST test_pact_string_find_end() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_find_noresult() {
 	char* str = "This is some test data.";
 	char* search = "bgak";
@@ -529,7 +512,8 @@ TEST test_pact_string_find_noresult() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_find_start_nulls() {
 	char* str = "This \0is \0some \0test \0data \0with \0nulls.";
 	char* search = "This";
@@ -542,7 +526,8 @@ TEST test_pact_string_find_start_nulls() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_find_start_both_nulls() {
 	char* str = "This \0is \0some \0test \0data \0with \0nulls.";
 	char* search = "This \0";
@@ -555,7 +540,8 @@ TEST test_pact_string_find_start_both_nulls() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_find_mid_nulls() {
 	char* str = "This \0is \0some \0test \0data \0with \0nulls.";
 	char* search = "some";
@@ -568,7 +554,8 @@ TEST test_pact_string_find_mid_nulls() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_find_mid_both_nulls() {
 	char* str = "This \0is \0some \0test \0data \0with \0nulls.";
 	char* search = "\0some \0";
@@ -581,7 +568,8 @@ TEST test_pact_string_find_mid_both_nulls() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_find_end_nulls() {
 	char* str = "This \0is \0some \0test \0data \0with \0nulls.";
 	char* search = "nulls.";
@@ -594,7 +582,8 @@ TEST test_pact_string_find_end_nulls() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_find_end_both_nulls() {
 	char* str = "This \0is \0some \0test \0data \0with \0nulls.";
 	char* search = "\0nulls.";
@@ -607,7 +596,8 @@ TEST test_pact_string_find_end_both_nulls() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_find_noresult_nulls() {
 	char* str = "This \0is \0some \0test \0data \0with \0nulls.";
 	char* search = "bgak";
@@ -620,7 +610,8 @@ TEST test_pact_string_find_noresult_nulls() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
+/*
 TEST test_pact_string_find_noresult_both_nulls() {
 	char* str = "This \0is \0some \0test \0data \0with \0nulls.";
 	char* search = "\0bgak";
@@ -633,17 +624,14 @@ TEST test_pact_string_find_noresult_both_nulls() {
 	pact_string_free(pstring2);
 	PASS();
 }
-
+*/
 
 SUITE(test_suite_pact_string) {
-	RUN_TEST(test_pact_string_assign_simple);
-	RUN_TEST(test_pact_string_assign_nulls);
-	RUN_TEST(test_pact_string_assign_length_simple);
-	RUN_TEST(test_pact_string_assign_length_section);
-	RUN_TEST(test_pact_string_assign_length_nulls);
+	RUN_TEST(test_pact_string_new_default);
+	RUN_TEST(test_pact_string_new_empty);
+	RUN_TEST(test_pact_string_new_nulls);
 	RUN_TEST(test_pact_string_length);
-	RUN_TEST(test_pact_string_length_nulls);
-	RUN_TEST(test_pact_string_clear_length_zero);
+	/*
 	RUN_TEST(test_pact_string_retrieve_short);
 	RUN_TEST(test_pact_string_retrieve_long);
 	RUN_TEST(test_pact_string_retrieve_substr_start);
@@ -685,4 +673,5 @@ SUITE(test_suite_pact_string) {
 	RUN_TEST(test_pact_string_find_end_both_nulls);
 	RUN_TEST(test_pact_string_find_noresult_nulls);
 	RUN_TEST(test_pact_string_find_noresult_both_nulls);
+	*/
 }

@@ -36,7 +36,7 @@ void pact_linkedlist_free(pact_LinkedList* llist) {
 	free(llist);
 }
 
-size_t pact_linkedlist_length(pact_LinkedList* llist) {
+size_t pact_linkedlist_get_length(pact_LinkedList* llist) {
 	return llist->length;
 }
 
@@ -113,4 +113,8 @@ pact_LinkedListIter* pact_linkedlist_iter(pact_LinkedListIter *iter) {
 		return iter->next;
 	}
 	return NULL;
+}
+
+void* pact_linkedlist_iter_get_data(pact_LinkedListIter* iter) {
+	return iter->data;
 }
